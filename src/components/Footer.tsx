@@ -16,7 +16,7 @@ const Footer = () => {
      {/* 2. BACKGROUND IMAGE LAYER */}
 <div
   // Changed bg-center to bg-top
-  className="absolute bottom-0 left-0 w-full h-[75%] bg-cover bg-top bg-no-repeat z-0"
+  className="absolute bottom-0 left-0 w-full h-[90%] bg-cover bg-top bg-no-repeat z-0"
   style={{ backgroundImage: `url(/footer-bg.png)` }} 
 />
 
