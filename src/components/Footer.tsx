@@ -14,8 +14,11 @@ const Footer = () => {
     <footer className="relative w-full mt-10 overflow-hidden rounded-t-[3rem]">
       {/* 2. BACKGROUND IMAGE LAYER (Bottom) */}
      <div
-        className="absolute bottom-0 left-0 w-full h-[75%] bg-cover bg-center bg-no-repeat z-0"
-        style={{ backgroundImage: `url(/footer-bg.png)` }}
+        className="absolute bottom-0 left-0 w-full h-[75%] bg-center bg-no-repeat z-0"
+        style={{ 
+          backgroundImage: `url(/footer-bg.png)`,
+          backgroundSize: '100% 100%' // Forces the image to fit exactly
+        }} 
       />
 
       {/* 3. GLASS MORPHISM LAYER */}
@@ -23,7 +26,7 @@ const Footer = () => {
 
       {/* 4. CONTENT CONTAINER */}
       {/* UPDATE: Reduced padding from 'py-16 md:py-24' to 'py-8 md:py-12' to reduce height */}
-      <div className="relative z-10 w-full px-6 py-8 md:px-12 md:py-12">
+      <div className="relative z-10 w-full px-6 py-12 md:px-12 md:py-16">
         {/* Grid Layout */}
         <div className="grid md:grid-cols-7 gap-10 md:gap-8 text-center md:text-left">
           {/* Logo Section */}
