@@ -13,12 +13,12 @@ const Footer = () => {
     <footer className="relative w-full mt-10 overflow-hidden rounded-t-[3rem]">
       {/* 2. BACKGROUND IMAGE LAYER (Bottom) */}
       {/* 2. BACKGROUND IMAGE LAYER */}
-      <div
-        className="absolute bottom-0 left-0 w-full z-0 bg-no-repeat 
-                   h-[50%] md:h-[80%] 
-                   bg-cover bg-bottom md:bg-[length:100%_100%]"
-        style={{ backgroundImage: `url(/footer-bg.png)` }}
-      />
+     {/* 2. BACKGROUND IMAGE LAYER */}
+<div
+  // Changed bg-center to bg-top
+  className="absolute bottom-0 left-0 w-full h-[75%] bg-cover bg-top bg-no-repeat z-0"
+  style={{ backgroundImage: `url(/footer-bg.png)` }} 
+/>
 
       {/* 3. GLASS MORPHISM LAYER */}
       <div className="absolute inset-0 w-full h-full backdrop-blur-sm bg-white/15 border-t border-white/20 z-0" />
