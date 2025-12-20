@@ -14,7 +14,7 @@ const Footer = () => {
     <footer className="relative w-full mt-10 overflow-hidden rounded-t-[3rem]">
       {/* 2. BACKGROUND IMAGE LAYER (Bottom) */}
      <div
-        className="absolute bottom-0 left-0 w-full h-[75%] bg-center bg-no-repeat z-0"
+        className="absolute bottom-0 left-0 w-full h-[80%] bg-center bg-no-repeat z-0"
         style={{ 
           backgroundImage: `url(/footer-bg.png)`,
           backgroundSize: '100% 100%' // Forces the image to fit exactly
