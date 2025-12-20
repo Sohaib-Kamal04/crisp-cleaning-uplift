@@ -15,23 +15,12 @@ const Hero = () => {
       if (!containerRef.current) return;
       const scrollY = window.scrollY;
 
-      // 1. ANIMATION SPEED
-      // Restored to 250 (was 400). Lower number = Faster animation.
-      // This ensures you see the full rounded edges and shrinking sooner.
       const progress = Math.min(scrollY / 250, 1);
 
-      // 2. VERTICAL SCALE (Height)
-      // 0.04 = Shrinks to 96% height.
-      // This is stronger than before so you can actually "feel" the vertical compression.
       const newScaleY = 1 - progress * 0.05;
 
-      // 3. HORIZONTAL SCALE (Width)
-      // 0.008 = Shrinks to ~99.2% width.
-      // On a desktop screen, this creates that tiny ~5px gap on each side.
       const newScaleX = 1 - progress * 0.05;
 
-      // 4. ROUNDED EDGES
-      // Goes from 0px to 40px (approx 2.5rem)
       const newRadius = progress * 40;
 
       setScaleX(newScaleX);
@@ -44,12 +33,10 @@ const Hero = () => {
   }, []);
 
   return (
-    // Height 120vh gives just enough scroll space for the effect to finish before the next section
     <div ref={containerRef} className="relative h-[150vh] z-20 bg-transparent">
       <div
         className="sticky top-0 h-screen overflow-hidden flex items-center justify-center bg-transparent transition-transform duration-75 ease-linear will-change-transform"
         style={{
-          // Apply X and Y scales independently
           transform: `scale(${scaleX}, ${scaleY})`,
           borderRadius: `${radius}px`,
         }}>

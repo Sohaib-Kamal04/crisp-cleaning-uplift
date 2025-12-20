@@ -66,36 +66,38 @@ const HowWeWork = () => {
   useEffect(() => {
     if (!hasStarted) return;
 
-    // --- TIMING CONFIGURATION (Fast & Smooth) ---
-    // Total time = 300 * 5 = 1500ms (1.5 seconds)
     const DURATION = 350;
 
     setSequenceStep(0);
 
-    // Step 1: Show First Card (Starts at 0ms)
     const t1 = setTimeout(() => {
       setSequenceStep(1);
     }, 50);
 
-    // Step 2: Draw First Line (Starts at 300ms)
     const t2 = setTimeout(() => {
       setSequenceStep(2);
     }, 50 + DURATION);
 
-    // Step 3: Show Second Card (Starts at 600ms)
-    const t3 = setTimeout(() => {
-      setSequenceStep(3);
-    }, 50 + DURATION * 2);
+    const t3 = setTimeout(
+      () => {
+        setSequenceStep(3);
+      },
+      50 + DURATION * 2
+    );
 
-    // Step 4: Draw Second Line (Starts at 900ms)
-    const t4 = setTimeout(() => {
-      setSequenceStep(4);
-    }, 50 + DURATION * 3);
+    const t4 = setTimeout(
+      () => {
+        setSequenceStep(4);
+      },
+      50 + DURATION * 3
+    );
 
-    // Step 5: Show Third Card (Starts at 1200ms)
-    const t5 = setTimeout(() => {
-      setSequenceStep(5);
-    }, 50 + DURATION * 4);
+    const t5 = setTimeout(
+      () => {
+        setSequenceStep(5);
+      },
+      50 + DURATION * 4
+    );
 
     return () => {
       clearTimeout(t1);
@@ -165,7 +167,7 @@ const HowWeWork = () => {
                 style={{
                   strokeDasharray: lengths.path1 || 1,
                   strokeDashoffset: sequenceStep >= 2 ? 0 : lengths.path1,
-                  // UPDATED: 0.3s duration
+
                   transition: "stroke-dashoffset 0.3s linear",
                   filter: "drop-shadow(0 0 8px rgba(255,255,255,0.5))",
                 }}
@@ -189,7 +191,7 @@ const HowWeWork = () => {
                 style={{
                   strokeDasharray: lengths.path2 || 1,
                   strokeDashoffset: sequenceStep >= 4 ? 0 : lengths.path2,
-                  // UPDATED: 0.3s duration
+
                   transition: "stroke-dashoffset 0.3s linear",
                   filter: "drop-shadow(0 0 8px rgba(255,255,255,0.5))",
                 }}
@@ -218,7 +220,7 @@ const HowWeWork = () => {
                       })`,
                       opacity: isVisible ? 1 : 0,
                       filter: isVisible ? "blur(0px)" : "blur(4px)",
-                      // UPDATED: 0.3s duration
+
                       transition: "all 0.3s ease-out",
                       zIndex: 30,
                     }

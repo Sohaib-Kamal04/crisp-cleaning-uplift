@@ -22,15 +22,10 @@ import {
   Eye,
   EyeOff,
   Tag,
-  Briefcase,
-  ShieldCheck,
-  DollarSign,
-  CalendarDays,
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import useScrollScale from "@/hooks/useScrollScale";
 
-// --- IMPORTS FROM UTILS ---
 import {
   calculatePricing,
   CLEANING_TYPE_PRICES,
@@ -46,7 +41,6 @@ import {
 
 import { getCurrentAddress } from "@/utils/geolocation";
 
-// --- DATA CONSTANTS ---
 const servicesList = [
   {
     id: "residential",
@@ -88,7 +82,6 @@ const cleaningTypesUI = [
   },
 ];
 
-// Commercial Data Options
 const commBusinessSizes = [
   { label: "Small (Under 2,000 sq ft)", value: "small" },
   { label: "Medium (2,000 - 10,000 sq ft)", value: "medium" },
@@ -131,7 +124,6 @@ const commBudgets = [
   "Custom Quote",
 ];
 
-// --- MOVED COMPONENT OUTSIDE TO FIX INPUT FOCUS ISSUE ---
 const BookingSummaryCard = ({
   className = "",
   formData,
@@ -250,10 +242,8 @@ const BookingSummaryCard = ({
 );
 
 const Services = () => {
-  // State: Form Data
   const [formData, setFormData] = useState({
     serviceCategory: "",
-    // Residential Specific
     cleaningType: "Regular" as CleaningType,
     homeDetails: { bedrooms: 0, bathrooms: 0, kitchens: 0, other: 0 },
     extras: [] as Extra[],
@@ -263,7 +253,6 @@ const Services = () => {
     selectedTime: "",
     instructions: { entry: "", parking: "", pets: "", notes: "" },
 
-    // Commercial Specific
     commercial: {
       businessName: "",
       businessSize: "",
@@ -275,7 +264,6 @@ const Services = () => {
       budget: "",
     },
 
-    // Contact (Shared Structure)
     contact: {
       firstName: "",
       lastName: "",
@@ -296,7 +284,6 @@ const Services = () => {
   const [mounted, setMounted] = useState(false);
   const [promoCode, setPromoCode] = useState("");
 
-  // Calendar View State
   const [viewDate, setViewDate] = useState(new Date());
 
   const [pricingResult, setPricingResult] = useState<PricingResponse | null>(
@@ -308,7 +295,6 @@ const Services = () => {
     setMounted(true);
   }, []);
 
-  // Time Slots
   const timeSlots = Array.from({ length: 12 }, (_, i) => {
     const startHour = 8 + i;
     const ampm = startHour >= 12 ? "PM" : "AM";
@@ -316,7 +302,6 @@ const Services = () => {
     return `${hour.toString().padStart(2, "0")}:00 ${ampm}`;
   });
 
-  // Effect: Recalculate price (Residential Only)
   useEffect(() => {
     if (isCommercial) return;
     if (!formData.frequency) return;
@@ -341,26 +326,25 @@ const Services = () => {
     isCommercial,
   ]);
 
-  // --- VALIDATION LOGIC ---
   const isStepValid = () => {
     if (currentStep === 1) return !!formData.serviceCategory;
 
     if (isCommercial) {
       switch (currentStep) {
-        case 2: // Business Info
+        case 2:
           return (
             !!formData.commercial.businessName &&
             !!formData.commercial.businessSize
           );
-        case 3: // Requirements
+        case 3:
           return (
             !!formData.commercial.environment && !!formData.commercial.cleanType
           );
-        case 4: // Frequency
+        case 4:
           return !!formData.commercial.frequency;
-        case 5: // Insurance & Budget
+        case 5:
           return !!formData.commercial.budget;
-        case 6: // Sign Up
+        case 6:
           return (
             !!formData.contact.firstName &&
             !!formData.contact.email &&
@@ -372,7 +356,6 @@ const Services = () => {
           return true;
       }
     } else {
-      // RESIDENTIAL
       switch (currentStep) {
         case 2:
           return (
@@ -432,7 +415,6 @@ const Services = () => {
   const handlePrev = () =>
     currentStep > 1 && setCurrentStep((prev) => prev - 1);
 
-  // Residential Helpers
   const updateRooms = (
     key: keyof typeof formData.homeDetails,
     change: number
@@ -476,7 +458,6 @@ const Services = () => {
     });
   };
 
-  // Commercial Helpers
   const updateComm = (key: string, value: any) => {
     setFormData((prev) => ({
       ...prev,
@@ -490,12 +471,9 @@ const Services = () => {
     }));
   };
 
-  // --- RENDERERS ---
-
   const renderStep1 = () => (
     <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto animate-in fade-in slide-in-from-right duration-500 h-full content-center">
       {servicesList.map((service) => (
-        // FIXED: Reduced shadow-xl to shadow-md for selected state
         <div
           key={service.id}
           onClick={() =>
@@ -535,7 +513,6 @@ const Services = () => {
     </div>
   );
 
-  // --- RESIDENTIAL STEPS ---
   const renderResStep2 = () => (
     <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-right duration-500 min-h-full flex flex-col justify-start md:justify-center gap-6 py-4 md:py-0">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -930,7 +907,6 @@ const Services = () => {
     </div>
   );
 
-  // --- COMMERCIAL STEPS ---
   const renderCommStep2 = () => (
     <div className="max-w-2xl mx-auto animate-in fade-in slide-in-from-right duration-500 h-full flex flex-col justify-center">
       <div className="text-center mb-8">
@@ -1382,7 +1358,6 @@ const Services = () => {
   });
   const validStep = isStepValid();
 
-  // CONTENT SWITCHER
   const renderContent = () => {
     if (currentStep === 1) return renderStep1();
     if (isCommercial) {
@@ -1423,8 +1398,8 @@ const Services = () => {
           <span className="text-primary">Free</span> Quote
         </>
       );
-    if (isCommercial) return ""; // Title hidden for commercial (handled inside steps)
-    // Residential Titles
+    if (isCommercial) return "";
+
     switch (currentStep) {
       case 2:
         return "Property Details";
@@ -1591,7 +1566,6 @@ const Services = () => {
   );
 };
 
-// --- SUBCOMPONENTS ---
 const RoomCounter = ({ label, count, onUpdate, hasInfo = false }: any) => (
   <div
     className={`flex items-center justify-between bg-gray-50 p-3 rounded-2xl border-2 border-transparent hover:border-gray-100 hover:shadow-md transition-all ${

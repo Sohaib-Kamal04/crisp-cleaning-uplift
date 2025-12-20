@@ -5,45 +5,20 @@ import { Button } from "@/components/ui/button";
 import useScrollScale from "@/hooks/useScrollScale";
 import { Star } from "lucide-react";
 
-const testimonials = [
-  {
-    name: "David R.",
-    role: "Recent Client",
-    content:
-      "Since hiring them for our bi-weekly cleaning, our house has never felt so calm. They don't just clean—they organize and refresh everything.",
-    avatar: "DR",
-  },
-  {
-    name: "Sarah P.",
-    role: "Home Owner",
-    content:
-      "The apartment looked better than when we moved in! It made the inspection a breeze. Highly recommended for any intense cleaning job.",
-    avatar: "SP",
-  },
-  {
-    name: "Michel T.",
-    role: "Showroom Manager",
-    content:
-      "Punctuality and attention to detail are key in our office, and this agency delivers every time. Our common areas are always spotless.",
-    avatar: "MT",
-  },
-  {
-    name: "David R.",
-    role: "Office Admin",
-    content:
-      "I was specifically impressed with their Showroom Cleaning service. We have huge front windows and all the display cases were absolutely flawless.",
-    avatar: "DR",
-  },
-  {
-    name: "Emilia A.",
-    role: "Founder & CEO",
-    content:
-      "We've been using this cleaning agency for two years, and the biggest compliment I can give is how much I trust them.",
-    avatar: "EA",
-  },
-];
+interface ReviewItem {
+  _id: string;
+  name: string;
+  role: string;
+  content: string;
+  rating: number;
+  avatarInitials: string;
+}
 
-const Reviews = () => {
+interface ReviewsProps {
+  data: ReviewItem[];
+}
+
+const Reviews = ({ data = [] }: ReviewsProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const cardVisibilityRef = useRef(null);
   const { ref: sectionRef, style: scaleStyle } = useScrollScale({
@@ -82,17 +57,17 @@ const Reviews = () => {
           <p className="text-muted-foreground max-w-xl mx-auto mb-8">
             Hear from our satisfied customers about their experience
           </p>
-          {/* Button was here, now removed */}
         </div>
 
         {/* Cards Section */}
         <div
           ref={cardVisibilityRef}
           className="flex flex-col md:flex-row justify-center items-center gap-6 md:gap-0 pb-10">
-          {testimonials.map((testimonial, index) => {
+          {data.map((testimonial, index) => {
             const isOddCard = index % 2 === 0;
             const getRotation = () => {
               if (!isOddCard) return 0;
+
               if (index === 0) return -10;
               if (index === 2) return -5;
               if (index === 4) return 10;
@@ -102,7 +77,7 @@ const Reviews = () => {
 
             return (
               <div
-                key={index}
+                key={testimonial._id}
                 className={`
                   w-full max-w-sm md:w-64
                   md:ml-[-40px] md:first:ml-0
@@ -137,7 +112,7 @@ const Reviews = () => {
                   }>
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-sm shrink-0">
-                      {testimonial.avatar}
+                      {testimonial.avatarInitials}
                     </div>
                     <div>
                       <h4 className="font-semibold text-foreground leading-tight">
@@ -149,7 +124,8 @@ const Reviews = () => {
                     </div>
                   </div>
                   <div className="flex gap-1 mb-4">
-                    {[...Array(5)].map((_, i) => (
+                    {/* Render stars based on rating */}
+                    {[...Array(testimonial.rating || 5)].map((_, i) => (
                       <Star
                         key={i}
                         className="w-4 h-4 fill-primary text-primary"
@@ -165,7 +141,7 @@ const Reviews = () => {
           })}
         </div>
 
-        {/* Button Section - Moved to Bottom */}
+        {/* Button Section */}
         <div className="text-center mt-12 mb-10">
           <Button variant="hero">View All Reviews</Button>
         </div>

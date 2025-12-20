@@ -10,10 +10,9 @@ const navLinks = [
 
 const Footer = () => {
   return (
-    // 1. OUTER FOOTER CONTAINER
     <footer className="relative w-full mt-10 overflow-hidden rounded-t-[3rem]">
       {/* 2. BACKGROUND IMAGE LAYER (Bottom) */}
-     {/* 2. BACKGROUND IMAGE LAYER */}
+      {/* 2. BACKGROUND IMAGE LAYER */}
       <div
         className="absolute bottom-0 left-0 w-full z-0 bg-no-repeat 
                    h-[50%] md:h-[80%] 

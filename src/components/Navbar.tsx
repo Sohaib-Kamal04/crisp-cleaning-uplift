@@ -37,7 +37,6 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // On contact page, always show scrolled style since there's no video hero
   const showScrolledStyle = isScrolled || isContactPage;
   const textColorClass = showScrolledStyle
     ? "text-foreground/70"
@@ -47,7 +46,6 @@ const Navbar = () => {
   const handleNavClick = (href: string) => {
     setIsMobileMenuOpen(false);
 
-    // Handle hash navigation for same-page anchors
     if (href.startsWith("/#")) {
       const hash = href.substring(1);
       if (pathname === "/") {

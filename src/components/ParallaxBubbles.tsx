@@ -6,17 +6,13 @@ interface BubbleConfig {
   id: number;
   size: number;
   left: string;
-  top: number; // VH
-  speed: number; // Parallax Factor
+  top: number;
+  speed: number;
   opacity: number;
   blur: number;
 }
 
-// STATIC MAP
 const BUBBLES_MAP: BubbleConfig[] = [
-  // ==========================================
-  // 1. LARGE EDGE BUBBLES (Foreground) - Keep these 3
-  // ==========================================
   {
     id: 1,
     size: 350,
@@ -45,10 +41,6 @@ const BUBBLES_MAP: BubbleConfig[] = [
     blur: 15,
   },
 
-  // ==========================================
-  // 2. MEDIUM BUBBLES (~15 items)
-  // Size: 80px - 140px | Speed: 0.2 - 0.3
-  // ==========================================
   { id: 10, size: 100, left: "15%", top: 5, speed: 0.2, opacity: 0.1, blur: 6 },
   {
     id: 11,
@@ -177,10 +169,6 @@ const BUBBLES_MAP: BubbleConfig[] = [
     blur: 6,
   },
 
-  // ==========================================
-  // 3. SMALL BUBBLES (~20 items)
-  // Size: 20px - 60px | Speed: 0.05 - 0.15 (Slower/Background)
-  // ==========================================
   { id: 30, size: 40, left: "5%", top: 8, speed: 0.1, opacity: 0.06, blur: 2 },
   {
     id: 31,
@@ -362,7 +350,7 @@ const ParallaxBubbles = () => {
     const handleScroll = () => {
       setScrollY(window.scrollY);
     };
-    // Initialize
+
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
@@ -381,7 +369,7 @@ const ParallaxBubbles = () => {
             top: `${bubble.top}vh`,
             opacity: bubble.opacity,
             filter: `blur(${bubble.blur}px)`,
-            // Move based on speed factor
+
             transform: `translate3d(0, ${-scrollY * bubble.speed}px, 0)`,
             transition: "transform 0.1s linear",
           }}

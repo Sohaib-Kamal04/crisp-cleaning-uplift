@@ -9,7 +9,28 @@ import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import ParallaxBubbles from "@/components/ParallaxBubbles";
 
-export default function Home() {
+import { client } from "@/sanity/lib/client";
+
+export default async function Home() {
+  const [faqsData, reviewsData] = await Promise.all([
+    client.fetch(
+      `*[_type == "faq"] | order(order asc) { _id, question, answer }`,
+      {},
+      { next: { revalidate: 0 } }
+    ),
+    client.fetch(
+      `*[_type == "review" && featured == true] { 
+      _id, 
+      name, 
+      role, 
+      content, 
+      rating, 
+      avatarInitials 
+    }`,
+      {},
+      { next: { revalidate: 0 } }
+    ),
+  ]);
   return (
     <main className="min-h-screen bg-background selection:bg-primary/20 selection:text-primary">
       <ParallaxBubbles />
@@ -18,8 +39,8 @@ export default function Home() {
       <Services />
       <About />
       <HowWeWork />
-      <Reviews />
-      <FAQs />
+      <Reviews data={reviewsData} />
+      <FAQs data={faqsData} />
       <Contact />
       <Footer />
     </main>

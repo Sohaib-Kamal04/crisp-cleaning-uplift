@@ -1,7 +1,7 @@
-"use client"; // <--- Crucial for hooks
+"use client";
 
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer"; // Ensure this path is correct based on your migration
+import Footer from "@/components/Footer";
 import ParallaxBubbles from "@/components/ParallaxBubbles";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

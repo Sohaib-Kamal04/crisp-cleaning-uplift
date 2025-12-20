@@ -12,10 +12,8 @@ const About = () => {
     threshold: 0.15,
   });
 
-  // CONFIGURATION: Set your start year here
   const startYear = 2015;
 
-  // Calculate total years dynamically
   const currentYear = new Date().getFullYear();
   const totalYears = currentYear - startYear;
 
@@ -23,10 +21,9 @@ const About = () => {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          // Start animation when element is visible
           let start = 0;
           const end = totalYears;
-          const duration = 1300; // 2 seconds animation
+          const duration = 1300;
           const incrementTime = Math.abs(Math.floor(duration / end));
 
           const timer = setInterval(() => {
@@ -35,11 +32,10 @@ const About = () => {
             if (start === end) clearInterval(timer);
           }, incrementTime);
 
-          // Stop observing after animation starts
           observer.disconnect();
         }
       },
-      { threshold: 0.5 } // Trigger when 50% visible
+      { threshold: 0.5 }
     );
 
     if (counterRef.current) {
