@@ -13,9 +13,9 @@ const Footer = () => {
     // 1. OUTER FOOTER CONTAINER
     <footer className="relative w-full mt-10 overflow-hidden rounded-t-[3rem]">
       {/* 2. BACKGROUND IMAGE LAYER (Bottom) */}
-      <div
-        className="absolute inset-0 w-full h-1/2 bg-cover bg-center bg-no-repeat z-0"
-        style={{ backgroundImage: `url(/footer-bg.png)` }} 
+     <div
+        className="absolute bottom-0 left-0 w-full h-[75%] bg-cover bg-center bg-no-repeat z-0"
+        style={{ backgroundImage: `url(/footer-bg.png)` }}
       />
 
       {/* 3. GLASS MORPHISM LAYER */}
