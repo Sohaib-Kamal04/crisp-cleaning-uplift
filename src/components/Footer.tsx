@@ -22,7 +22,7 @@ const Footer = () => {
       />
 
       {/* 3. GLASS MORPHISM LAYER */}
-      <div className="absolute inset-0 w-full h-full backdrop-blur bg-white/15 border-t border-white/20 z-0" />
+      <div className="absolute inset-0 w-full h-full backdrop-blur-sm bg-white/15 border-t border-white/20 z-0" />
 
       {/* 4. CONTENT CONTAINER */}
       {/* UPDATE: Reduced padding from 'py-16 md:py-24' to 'py-8 md:py-12' to reduce height */}
