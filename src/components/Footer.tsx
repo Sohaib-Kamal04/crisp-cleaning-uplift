@@ -1,4 +1,5 @@
 import Link from "next/link";
+
 const navLinks = [
   { name: "Home", href: "/" },
   { name: "About", href: "/#about" },
@@ -14,14 +15,15 @@ const Footer = () => {
       {/* 2. BACKGROUND IMAGE LAYER (Bottom) */}
       <div
         className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat z-0"
-        style={{ backgroundImage: `url(/footer-bg.png)` }} // Changed to direct path
+        style={{ backgroundImage: `url(/footer-bg.png)` }} 
       />
 
       {/* 3. GLASS MORPHISM LAYER */}
       <div className="absolute inset-0 w-full h-full backdrop-blur-sm bg-white/15 border-t border-white/20 z-0" />
 
       {/* 4. CONTENT CONTAINER */}
-      <div className="relative z-10 w-full px-6 py-16 md:px-12 md:py-24">
+      {/* UPDATE: Reduced padding from 'py-16 md:py-24' to 'py-8 md:py-12' to reduce height */}
+      <div className="relative z-10 w-full px-6 py-8 md:px-12 md:py-12">
         {/* Grid Layout */}
         <div className="grid md:grid-cols-7 gap-10 md:gap-8 text-center md:text-left">
           {/* Logo Section */}
@@ -42,7 +44,7 @@ const Footer = () => {
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
-                  href={link.href} // Changed 'to' to 'href'
+                  href={link.href}
                   className="text-foreground/70 hover:text-foreground transition-colors font-medium">
                   {link.name}
                 </Link>
@@ -63,7 +65,7 @@ const Footer = () => {
                   crispcleaningmelbourne@outlook.com
                 </a>
                 <Link
-                  href="/contact" // Changed 'to' to 'href'
+                  href="/contact"
                   className="text-foreground/70 hover:text-foreground transition-colors block font-medium">
                   Contact Us
                 </Link>
