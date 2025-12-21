@@ -17,6 +17,22 @@ export default defineType({
       type: "text",
       validation: (rule) => rule.required(),
     }),
+    // --- NEW FIELD ---
+    defineField({
+      name: "category",
+      title: "Category",
+      type: "string",
+      options: {
+        list: [
+          { title: "Booking & Services", value: "booking" },
+          { title: "Safety & Satisfaction", value: "safety" },
+        ],
+        layout: "radio", // or 'dropdown'
+      },
+      initialValue: "booking",
+      validation: (rule) => rule.required(),
+    }),
+    // ----------------
     defineField({
       name: "order",
       title: "Order",
