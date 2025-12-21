@@ -16,6 +16,8 @@ import {
   Linkedin,
 } from "lucide-react";
 import useScrollScale from "@/hooks/useScrollScale";
+import Link from "next/link";
+
 
 const ContactPage = () => {
   const { ref: contactContentRef, style: contactContentStyle } = useScrollScale(
@@ -261,13 +263,16 @@ const ContactPage = () => {
                   Ready to transform your space? Get a free, no-obligation quote
                   today and see why Melbourne trusts Crisp Cleaning.
                 </p>
-                <Button
-                  variant="secondary"
-                  size="xl"
-                  className="bg-card text-foreground hover:bg-card/90 shadow-xl">
-                  Get a Free Quote
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
+                 <Link href="/contact" className="w-full sm:w-auto">
+                  <Button
+                    as="div"
+                    variant="secondary"
+                    size="xl"
+                    className="bg-card text-foreground hover:bg-card/90 shadow-xl">
+                    Get a Free Quote
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                 </Link>
               </div>
             </div>
           </div>
