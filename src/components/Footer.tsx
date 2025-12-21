@@ -11,20 +11,16 @@ const navLinks = [
 const Footer = () => {
   return (
     <footer className="relative w-full mt-10 overflow-hidden rounded-t-[3rem]">
-      {/* 2. BACKGROUND IMAGE LAYER (Bottom) */}
-      {/* 2. BACKGROUND IMAGE LAYER */}
-     {/* 2. BACKGROUND IMAGE LAYER */}
-<div
-  // Changed bg-center to bg-top
-  className="absolute bottom-0 left-0 w-full h-[90%] bg-cover bg-top bg-no-repeat z-0"
-  style={{ backgroundImage: `url(/footer-bg.png)` }} 
-/>
+
+      <div
+        className="absolute bottom-0 left-0 w-full h-[90%] bg-cover bg-top bg-no-repeat z-0"
+        style={{ backgroundImage: `url(/footer-bg.png)` }} 
+      />
 
       {/* 3. GLASS MORPHISM LAYER */}
       <div className="absolute inset-0 w-full h-full backdrop-blur-sm bg-white/15 border-t border-white/20 z-0" />
 
       {/* 4. CONTENT CONTAINER */}
-      {/* UPDATE: Reduced padding from 'py-16 md:py-24' to 'py-8 md:py-12' to reduce height */}
       <div className="relative z-10 w-full px-6 py-12 md:px-12 md:py-16">
         {/* Grid Layout */}
         <div className="grid md:grid-cols-7 gap-10 md:gap-8 text-center md:text-left">
