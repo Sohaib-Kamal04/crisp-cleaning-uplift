@@ -14,6 +14,8 @@ interface FAQItem {
   _id: string;
   question: string;
   answer: string;
+  // Added category to interface so we can filter by it
+  category: "booking" | "safety" | string;
 }
 
 interface FAQsProps {
@@ -24,6 +26,18 @@ const FAQs = ({ data }: FAQsProps) => {
   const { ref: sectionRef, style: scaleStyle } = useScrollScale({
     threshold: 0.1,
   });
+
+  // Filter: Take 3 from 'booking' and 2 from 'safety'
+  const bookingFaqs = data
+    .filter((item) => item.category === "booking")
+    .slice(0, 3);
+
+  const safetyFaqs = data
+    .filter((item) => item.category === "safety")
+    .slice(0, 2);
+
+  // Combine them into one list of max 5 items
+  const filteredData = [...bookingFaqs, ...safetyFaqs];
 
   return (
     <section
@@ -57,9 +71,8 @@ const FAQs = ({ data }: FAQsProps) => {
           {/* Right Column - Accordion */}
           <div>
             <Accordion type="single" collapsible className="space-y-4">
-              {/* Map over the passed 'data' prop instead of hardcoded array */}
-              {data &&
-                data.map((faq, index) => (
+              {filteredData && filteredData.length > 0 ? (
+                filteredData.map((faq, index) => (
                   <AccordionItem
                     key={faq._id}
                     value={`item-${index}`}
@@ -71,7 +84,14 @@ const FAQs = ({ data }: FAQsProps) => {
                       {faq.answer}
                     </AccordionContent>
                   </AccordionItem>
-                ))}
+                ))
+              ) : (
+                <div className="bg-slate-900 text-white p-4 rounded text-xs font-mono overflow-auto max-h-96">
+                  <p className="font-bold text-red-400 mb-2">DEBUG MODE:</p>
+                  <p>Data Length: {data?.length || 0}</p>
+                  <pre>{JSON.stringify(data, null, 2)}</pre>
+                </div>
+              )}
             </Accordion>
           </div>
         </div>
