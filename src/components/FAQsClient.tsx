@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/accordion";
 import useScrollScale from "@/hooks/useScrollScale";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 interface FAQItem {
   _id: string;
@@ -154,20 +155,26 @@ const FAQsClient = ({ data }: FAQsClientProps) => {
                   get in touch with us directly
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button
-                    variant="secondary"
-                    size="xl"
-                    className="bg-card text-foreground hover:bg-card/90 shadow-xl">
-                    Get a Free Quote
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="xl"
-                    className="bg-card text-foreground hover:bg-card/90 shadow-xl">
-                    Contact Us
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
+                  <Link href="/#services" className="w-full sm:w-auto">
+                    <Button
+                      as="div"
+                      variant="secondary"
+                      size="xl"
+                      className="bg-card text-foreground hover:bg-card/90 shadow-xl">
+                      Get a Free Quote
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </Link>
+                  <Link href="/contact" className="w-full sm:w-auto">
+                    <Button
+                      as="div"
+                      variant="secondary"
+                      size="xl"
+                      className="bg-card text-foreground hover:bg-card/90 shadow-xl">
+                      Contact Us
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
