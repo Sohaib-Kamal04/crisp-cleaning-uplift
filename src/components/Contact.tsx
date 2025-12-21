@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowRight, Mail, MapPin, Phone } from "lucide-react";
 import useScrollScale from "@/hooks/useScrollScale";
+import Link from "next/link";
 
 const Contact = () => {
   const { ref: sectionRef, style: scaleStyle } = useScrollScale({
@@ -31,13 +32,16 @@ const Contact = () => {
             <p className="text-primary-foreground/80 text-lg mb-8">
               Feel free to contact us to establish project details.
             </p>
-            <Button
-              variant="secondary"
-              size="xl"
-              className="bg-card text-foreground hover:bg-card/90">
-              Contact Us
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
+            <Link href="/contact" className="w-full sm:w-auto">
+              <Button
+                as="div"
+                variant="secondary"
+                size="xl"
+                className="bg-card text-foreground hover:bg-card/90 shadow-xl w-full cursor-pointer">
+                Contact Us
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
           </div>
         </div>
 
