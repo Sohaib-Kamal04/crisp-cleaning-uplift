@@ -120,7 +120,7 @@ const FAQsClient = ({ data }: FAQsClientProps) => {
                         <AccordionTrigger className="text-left font-semibold text-foreground/90 hover:text-primary py-6 text-lg hover:no-underline">
                           {faq.question}
                         </AccordionTrigger>
-                        <AccordionContent className="text-muted-foreground pb-6 text-base leading-relaxed">
+                        <AccordionContent className="text-muted-foreground pb-6 text-base leading-relaxed whitespace-pre-line">
                           {faq.answer}
                         </AccordionContent>
                       </AccordionItem>
