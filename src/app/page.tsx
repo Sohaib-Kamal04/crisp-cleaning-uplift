@@ -14,7 +14,7 @@ import { client } from "@/sanity/lib/client";
 export default async function Home() {
   const [faqsData, reviewsData] = await Promise.all([
     client.fetch(
-      `*[_type == "faq"] | order(order asc) { _id, question, answer }`,
+      `*[_type == "faq"] | order(order asc) { _id, question, answer,category }`,
       {},
       { next: { revalidate: 0 } }
     ),
