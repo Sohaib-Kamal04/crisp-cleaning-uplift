@@ -15,7 +15,6 @@ import {
 import useScrollScale from "@/hooks/useScrollScale";
 import { cn } from "@/lib/utils";
 
-// Define the interface for the data coming from Sanity
 interface FAQItem {
   _id: string;
   question: string;
@@ -33,30 +32,24 @@ const FAQsClient = ({ data }: FAQsClientProps) => {
   });
   const { ref: ctaRef, style: ctaStyle } = useScrollScale({ threshold: 0.1 });
 
-  // State for the active tab
   const [activeTab, setActiveTab] = useState<"booking" | "safety">("booking");
 
-  // Filter data based on the active tab
   const currentFAQs = data.filter((faq) => faq.category === activeTab);
 
   return (
     <>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background flex flex-col">
         <ParallaxBubbles />
 
-        {/* Hero Section */}
         <section className="relative min-h-[60vh] overflow-hidden">
-          {/* Gradient Background */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-accent z-0" />
 
-          {/* Decorative elements */}
           <div className="absolute top-20 right-20 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
           <div className="absolute bottom-0 left-10 w-72 h-72 bg-white/5 rounded-full blur-2xl" />
           <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-accent/20 rounded-full blur-2xl" />
 
           <Navbar />
 
-          {/* Hero Content */}
           <div className="relative z-10 container mx-auto px-6 pt-40 pb-20 text-center">
             <span className="inline-block px-4 py-2 bg-white/10 backdrop-blur-sm text-white text-sm font-medium rounded-full mb-6 border border-white/20 animate-fade-up">
               Have a Question?
@@ -76,14 +69,12 @@ const FAQsClient = ({ data }: FAQsClientProps) => {
           </div>
         </section>
 
-        {/* Accordion Section */}
-        <section className="relative py-20 -mt-10">
+        <section className="relative py-20 -mt-10 mb-auto">
           <div
             ref={FAQsContentRef as React.RefObject<HTMLDivElement>}
             style={FAQsContentStyle}
             className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto">
-              {/* Custom Tabs Header */}
               <div className="flex flex-col sm:flex-row justify-center items-center mb-12 border-b border-border/40">
                 <button
                   onClick={() => setActiveTab("booking")}
@@ -114,15 +105,18 @@ const FAQsClient = ({ data }: FAQsClientProps) => {
                 </button>
               </div>
 
-              {/* Accordion List */}
-              <div className="min-h-[400px]">
+              <div key={activeTab} className="h-auto w-full">
                 <Accordion type="single" collapsible className="space-y-4">
                   {currentFAQs.length > 0 ? (
-                    currentFAQs.map((faq) => (
+                    currentFAQs.map((faq, index) => (
                       <AccordionItem
                         key={faq._id}
                         value={faq._id}
-                        className="bg-card border border-border/50 rounded-xl px-6 shadow-sm hover:shadow-md transition-all duration-300">
+                        className={cn(
+                          "bg-card border border-border/50 rounded-xl px-6 shadow-sm hover:shadow-md transition-all duration-300",
+                          "animate-in slide-in-from-bottom-4 fade-in duration-500 fill-mode-both"
+                        )}
+                        style={{ animationDelay: `${index * 100}ms` }}>
                         <AccordionTrigger className="text-left font-semibold text-foreground/90 hover:text-primary py-6 text-lg hover:no-underline">
                           {faq.question}
                         </AccordionTrigger>
@@ -132,7 +126,7 @@ const FAQsClient = ({ data }: FAQsClientProps) => {
                       </AccordionItem>
                     ))
                   ) : (
-                    <div className="text-center text-muted-foreground py-10">
+                    <div className="text-center text-muted-foreground py-10 bg-card/50 rounded-xl border border-dashed border-border animate-in fade-in zoom-in-95 duration-300">
                       No questions found for this category.
                     </div>
                   )}
@@ -142,7 +136,6 @@ const FAQsClient = ({ data }: FAQsClientProps) => {
           </div>
         </section>
 
-        {/* CTA Section */}
         <section className="py-20">
           <div
             ref={ctaRef as React.RefObject<HTMLDivElement>}
