@@ -263,7 +263,7 @@ const ContactPage = () => {
                   Ready to transform your space? Get a free, no-obligation quote
                   today and see why Melbourne trusts Crisp Cleaning.
                 </p>
-                 <Link href="/contact" className="w-full sm:w-auto">
+                 <Link href="/#services" className="w-full sm:w-auto">
                   <Button
                     as="div"
                     variant="secondary"
