@@ -18,7 +18,8 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-  const isContactPage = pathname === "/contact";
+
+  const isHomePage = pathname === "/";
 
   const [radius, setRadius] = useState(0);
   const ANIMATION_END_POINT = 300;
@@ -37,7 +38,8 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const showScrolledStyle = isScrolled || isContactPage;
+  const showScrolledStyle = !isHomePage || isScrolled;
+
   const textColorClass = showScrolledStyle
     ? "text-foreground/70"
     : "text-white/90";
@@ -65,8 +67,8 @@ const Navbar = () => {
           : "bg-transparent py-6"
       }`}
       style={{
-        borderBottomLeftRadius: isContactPage ? "0px" : `${radius}px`,
-        borderBottomRightRadius: isContactPage ? "0px" : `${radius}px`,
+        borderBottomLeftRadius: !isHomePage ? "0px" : `${radius}px`,
+        borderBottomRightRadius: !isHomePage ? "0px" : `${radius}px`,
       }}>
       <div className="container mx-auto px-6 flex items-center justify-between relative">
         {/* LOGO */}
@@ -84,9 +86,7 @@ const Navbar = () => {
         <nav className="hidden md:flex items-center gap-8 absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
           {navLinks.map((link) => {
             const isActive =
-              link.href === "/contact"
-                ? pathname === "/contact"
-                : link.href === "/" && pathname === "/";
+              link.href === "/" ? pathname === "/" : pathname === link.href;
 
             return (
               <Link
