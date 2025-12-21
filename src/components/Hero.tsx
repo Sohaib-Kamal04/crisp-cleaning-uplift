@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
+import Link from "next/link";
 
 const Hero = () => {
   const [scaleX, setScaleX] = useState(1);
@@ -93,13 +94,16 @@ const Hero = () => {
                   animationDelay: "400ms",
                   animationFillMode: "forwards",
                 }}>
-                <Button
-                  variant="hero"
-                  size="xl"
-                  className="shadow-xl shadow-primary/20">
-                  Get a Free Quote
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
+                <Link href="/#services" className="w-full sm:w-auto">
+                  <Button
+                    as="div"
+                    variant="hero"
+                    size="xl"
+                    className="shadow-xl shadow-primary/20">
+                    Get a Free Quote
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
 
                 <Button
                   variant="hero-outline"
