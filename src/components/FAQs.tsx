@@ -9,6 +9,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import useScrollScale from "@/hooks/useScrollScale";
+import Link from "next/link";
 
 interface FAQItem {
   _id: string;
@@ -65,7 +66,9 @@ const FAQs = ({ data }: FAQsProps) => {
               We believe in transparency and want to ensure that you have all
               the information necessary to choose us with confidence.
             </p>
-            <Button variant="hero">View All FAQs</Button>
+            <Link href="/faq" className="w-full sm:w-auto">
+              <Button as="div" variant="hero">View All FAQs</Button>
+            </Link>
           </div>
 
           {/* Right Column - Accordion */}
