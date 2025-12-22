@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# NextJS
+.next
+out
+build
+
+# env files
+.env*

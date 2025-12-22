@@ -290,6 +290,12 @@ const Services = () => {
     null
   );
   const [isLoadingLoc, setIsLoadingLoc] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // API Configuration
+  const API_BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
 
   useEffect(() => {
     setMounted(true);
@@ -348,6 +354,8 @@ const Services = () => {
           return (
             !!formData.contact.firstName &&
             !!formData.contact.email &&
+            !!formData.contact.password &&
+            formData.contact.password.length >= 8 &&
             !!formData.contact.phone &&
             !!formData.contact.address &&
             formData.contact.terms
@@ -360,9 +368,9 @@ const Services = () => {
         case 2:
           return (
             (formData.homeDetails.bedrooms || 0) +
-              (formData.homeDetails.bathrooms || 0) +
-              (formData.homeDetails.kitchens || 0) +
-              (formData.homeDetails.other || 0) >
+            (formData.homeDetails.bathrooms || 0) +
+            (formData.homeDetails.kitchens || 0) +
+            (formData.homeDetails.other || 0) >
             0
           );
         case 3:
@@ -381,6 +389,8 @@ const Services = () => {
           return (
             !!formData.contact.firstName &&
             !!formData.contact.email &&
+            !!formData.contact.password &&
+            formData.contact.password.length >= 8 &&
             !!formData.contact.phone &&
             !!formData.contact.address &&
             formData.contact.terms
@@ -406,14 +416,236 @@ const Services = () => {
     }
   };
 
+  // Transform residential form data to API format
+  const transformResidentialFormDataToAPI = () => {
+    if (!formData.selectedDate || !formData.selectedTime) {
+      throw new Error("Date and time are required");
+    }
+
+    // Parse time string (e.g., "08:00 AM") and combine with date
+    const timeMatch = formData.selectedTime.match(/(\d+):(\d+)\s*(AM|PM)/i);
+    if (!timeMatch) {
+      throw new Error("Invalid time format");
+    }
+
+    let hours = parseInt(timeMatch[1], 10);
+    const minutes = parseInt(timeMatch[2], 10);
+    const ampm = timeMatch[3].toUpperCase();
+
+    if (ampm === "PM" && hours !== 12) hours += 12;
+    if (ampm === "AM" && hours === 12) hours = 0;
+
+    const bookingDate = new Date(formData.selectedDate);
+    bookingDate.setHours(hours, minutes, 0, 0);
+
+    // Map frequency
+    const frequencyMap: Record<Frequency, "OneTime" | "Weekly" | "Fortnightly" | "Monthly"> = {
+      "One time": "OneTime",
+      Weekly: "Weekly",
+      Fortnightly: "Fortnightly",
+      Monthly: "Monthly",
+    };
+
+    const apiFrequency = frequencyMap[formData.frequency] || "OneTime";
+
+    // Map extras array to individual count fields
+    const extrasMap: Record<Extra, string> = {
+      Windows: "extraWindows",
+      Walls: "extraWalls",
+      Cabinets: "extraCabinets",
+      Organisation: "extraOrganisation",
+      Blinds: "extraBlinds",
+      "Oven/Stovetops": "extraOvenStovetop",
+      Fridge: "extraFridge",
+      Dishwasher: "extraDishwasher",
+      Microwave: "extraMicrowave",
+      Laundry: "extraLaundry",
+      "Tiles/Flooring": "extraTilesFlooring",
+      Garage: "extraGarage", // Not used but handle gracefully
+    };
+
+    const extrasPayload: Record<string, number> = {
+      extraWalls: 0,
+      extraWindows: 0,
+      extraCabinets: 0,
+      extraOrganisation: 0,
+      extraBlinds: 0,
+      extraOvenStovetop: 0,
+      extraFridge: 0,
+      extraDishwasher: 0,
+      extraMicrowave: 0,
+      extraLaundry: 0,
+      extraTilesFlooring: 0,
+    };
+
+    formData.extras.forEach((extra) => {
+      const fieldName = extrasMap[extra];
+      if (fieldName && fieldName !== "extraGarage") {
+        extrasPayload[fieldName] = 1;
+      }
+    });
+
+    return {
+      firstName: formData.contact.firstName,
+      lastName: formData.contact.lastName,
+      email: formData.contact.email,
+      password: formData.contact.password,
+      phone: formData.contact.phone,
+      address: formData.contact.address,
+      accountType: "residential" as const,
+      bookingDate: bookingDate.toISOString(),
+      cleaningType: formData.cleaningType,
+      frequency: apiFrequency,
+      actionTakerDiscount: false,
+      roomsBedrooms: formData.homeDetails.bedrooms || 0,
+      roomsBathrooms: formData.homeDetails.bathrooms || 0,
+      roomsKitchens: formData.homeDetails.kitchens || 0,
+      roomsOther: formData.homeDetails.other || 0,
+      ...extrasPayload,
+      entryInstructions: formData.instructions.entry || "",
+      parkingInstructions: formData.instructions.parking || "",
+      petsInstructions: formData.instructions.pets || "",
+      notes: formData.instructions.notes || "",
+    };
+  };
+
+  // Transform commercial form data to API format
+  const transformCommercialFormDataToAPI = () => {
+    // Map commercial frequency to API frequency
+    const frequencyMap: Record<string, "OneTime" | "Weekly" | "Fortnightly" | "Monthly"> = {
+      Daily: "OneTime",
+      Weekly: "Weekly",
+      "Bi-weekly": "Fortnightly",
+      Monthly: "Monthly",
+      "One-time": "OneTime",
+      Custom: "OneTime",
+    };
+
+    const apiFrequency = frequencyMap[formData.commercial.frequency] || "OneTime";
+
+    // Default booking date to 7 days from now
+    const bookingDate = new Date();
+    bookingDate.setDate(bookingDate.getDate() + 7);
+    bookingDate.setHours(9, 0, 0, 0); // Default to 9 AM
+
+    return {
+      name: formData.contact.firstName, // Use firstName as name for commercial
+      firstName: formData.contact.firstName,
+      lastName: "",
+      email: formData.contact.email,
+      password: formData.contact.password,
+      phone: formData.contact.phone,
+      address: formData.contact.address,
+      accountType: "commercial" as const,
+      bookingDate: bookingDate.toISOString(),
+      cleaningType: "Regular" as const, // Default for commercial
+      frequency: apiFrequency,
+      actionTakerDiscount: false,
+      roomsBedrooms: 0,
+      roomsBathrooms: 0,
+      roomsKitchens: 0,
+      roomsOther: 0,
+      extraWalls: 0,
+      extraWindows: 0,
+      extraCabinets: 0,
+      extraOrganisation: 0,
+      extraBlinds: 0,
+      extraOvenStovetop: 0,
+      extraFridge: 0,
+      extraDishwasher: 0,
+      extraMicrowave: 0,
+      extraLaundry: 0,
+      extraTilesFlooring: 0,
+      entryInstructions: "",
+      parkingInstructions: "",
+      petsInstructions: "",
+      notes: "",
+    };
+  };
+
+  // Unified submission handler
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      // Validate required fields
+      if (!formData.contact.firstName || !formData.contact.email || !formData.contact.phone || !formData.contact.address) {
+        setSubmitError("Please fill in all required fields.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!formData.contact.terms) {
+        setSubmitError("Please accept the terms and conditions.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Password is required for both types
+      if (!formData.contact.password || formData.contact.password.length < 8) {
+        setSubmitError("Password is required and must be at least 8 characters.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Transform form data based on booking type
+      const payload = isCommercial
+        ? transformCommercialFormDataToAPI()
+        : transformResidentialFormDataToAPI();
+
+      // Make API request
+      const response = await fetch(`${API_BASE_URL}/api/signup`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        const errorMessage =
+          result.error ||
+          result.details?.[0]?.message ||
+          "Failed to create booking. Please try again.";
+        setSubmitError(errorMessage);
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Redirect to Stripe checkout
+      if (result.checkoutUrl) {
+        window.location.href = result.checkoutUrl;
+      } else {
+        setSubmitError("No checkout URL received. Please contact support.");
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      console.error("Submission error:", error);
+      setSubmitError(
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred. Please try again."
+      );
+      setIsSubmitting(false);
+    }
+  };
+
   const handleNext = () => {
     if (isStepValid() && currentStep < totalSteps) {
+      setSubmitError(null); // Clear errors when navigating
       setCurrentStep((prev) => prev + 1);
     }
   };
 
-  const handlePrev = () =>
-    currentStep > 1 && setCurrentStep((prev) => prev - 1);
+  const handlePrev = () => {
+    if (currentStep > 1) {
+      setSubmitError(null); // Clear errors when navigating
+      setCurrentStep((prev) => prev - 1);
+    }
+  };
 
   const updateRooms = (
     key: keyof typeof formData.homeDetails,
@@ -479,17 +711,15 @@ const Services = () => {
           onClick={() =>
             setFormData({ ...formData, serviceCategory: service.id })
           }
-          className={`group glass-card border-2 rounded-3xl p-8 cursor-pointer transition-all duration-200 relative overflow-hidden hover:shadow-xl hover:border-primary ${
-            formData.serviceCategory === service.id
-              ? "bg-primary/5 border-primary shadow-md"
-              : "bg-secondary/10 border-transparent hover:border-primary"
-          }`}>
-          <div
-            className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-sm transition-colors duration-300 ${
-              formData.serviceCategory === service.id
-                ? "bg-primary text-white"
-                : "bg-white text-primary"
+          className={`group glass-card border-2 rounded-3xl p-8 cursor-pointer transition-all duration-200 relative overflow-hidden hover:shadow-xl hover:border-primary ${formData.serviceCategory === service.id
+            ? "bg-primary/5 border-primary shadow-md"
+            : "bg-secondary/10 border-transparent hover:border-primary"
             }`}>
+          <div
+            className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-sm transition-colors duration-300 ${formData.serviceCategory === service.id
+              ? "bg-primary text-white"
+              : "bg-white text-primary"
+              }`}>
             <service.icon className="w-8 h-8" />
           </div>
           <h3 className="text-xl font-display font-semibold mb-3">
@@ -499,11 +729,10 @@ const Services = () => {
             {service.description}
           </p>
           <div
-            className={`absolute top-6 right-6 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-              formData.serviceCategory === service.id
-                ? "border-primary bg-primary"
-                : "border-gray-300"
-            }`}>
+            className={`absolute top-6 right-6 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${formData.serviceCategory === service.id
+              ? "border-primary bg-primary"
+              : "border-gray-300"
+              }`}>
             {formData.serviceCategory === service.id && (
               <CheckCircle2 className="w-4 h-4 text-white" />
             )}
@@ -525,11 +754,10 @@ const Services = () => {
                 cleaningType: type.id as CleaningType,
               })
             }
-            className={`p-6 rounded-2xl border-2 transition-all duration-200 flex flex-col items-center gap-3 hover:shadow-xl hover:border-primary ${
-              formData.cleaningType === type.id
-                ? "bg-white border-primary shadow-lg ring-1 ring-primary/20"
-                : "bg-white border-gray-100"
-            }`}>
+            className={`p-6 rounded-2xl border-2 transition-all duration-200 flex flex-col items-center gap-3 hover:shadow-xl hover:border-primary ${formData.cleaningType === type.id
+              ? "bg-white border-primary shadow-lg ring-1 ring-primary/20"
+              : "bg-white border-gray-100"
+              }`}>
             <div
               className={`w-12 h-12 rounded-xl flex items-center justify-center ${type.bg} ${type.color}`}>
               <type.icon className="w-6 h-6" />
@@ -590,11 +818,10 @@ const Services = () => {
                 <button
                   key={extra}
                   onClick={() => toggleExtra(extra)}
-                  className={`p-3 text-xs font-medium rounded-xl border-2 transition-all duration-200 truncate hover:shadow-md hover:border-primary ${
-                    formData.extras?.includes(extra)
-                      ? "bg-primary/10 border-primary text-primary"
-                      : "bg-white border-gray-100 text-gray-500"
-                  }`}>
+                  className={`p-3 text-xs font-medium rounded-xl border-2 transition-all duration-200 truncate hover:shadow-md hover:border-primary ${formData.extras?.includes(extra)
+                    ? "bg-primary/10 border-primary text-primary"
+                    : "bg-white border-gray-100 text-gray-500"
+                    }`}>
                   {extra}
                 </button>
               ))}
@@ -673,11 +900,10 @@ const Services = () => {
               onClick={() =>
                 setFormData({ ...formData, frequency: "One time" })
               }
-              className={`p-4 rounded-xl border-2 flex items-center justify-center transition-all duration-200 hover:border-primary/50 ${
-                formData.frequency === "One time"
-                  ? "bg-white border-primary shadow-md text-primary font-bold"
-                  : "bg-white border-gray-200 text-gray-600"
-              }`}>
+              className={`p-4 rounded-xl border-2 flex items-center justify-center transition-all duration-200 hover:border-primary/50 ${formData.frequency === "One time"
+                ? "bg-white border-primary shadow-md text-primary font-bold"
+                : "bg-white border-gray-200 text-gray-600"
+                }`}>
               One Time Clean
             </button>
             <div className="flex gap-2">
@@ -687,11 +913,10 @@ const Services = () => {
                     onClick={() =>
                       setFormData({ ...formData, frequency: freq as Frequency })
                     }
-                    className={`w-full h-full p-2 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-200 hover:border-orange-300 ${
-                      formData.frequency === freq
-                        ? "bg-orange-50 border-orange-500 shadow-md text-orange-600 font-bold"
-                        : "bg-white border-gray-200 text-gray-600"
-                    }`}>
+                    className={`w-full h-full p-2 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-200 hover:border-orange-300 ${formData.frequency === freq
+                      ? "bg-orange-50 border-orange-500 shadow-md text-orange-600 font-bold"
+                      : "bg-white border-gray-200 text-gray-600"
+                      }`}>
                     <span className="text-xs sm:text-sm">{freq}</span>
                     {FREQUENCY_DISCOUNTS[freq as Frequency] > 0 && (
                       <span className="text-[10px] bg-orange-200 text-orange-800 px-1.5 rounded-full mt-1">
@@ -757,25 +982,21 @@ const Services = () => {
                     key={day}
                     onClick={() => !past && handleDateSelect(day)}
                     disabled={past}
-                    className={`h-10 w-full rounded-xl flex flex-col items-center justify-center text-sm transition-all relative ${
-                      selected
-                        ? "bg-primary text-white shadow-md font-bold"
-                        : ""
-                    } ${
-                      past
+                    className={`h-10 w-full rounded-xl flex flex-col items-center justify-center text-sm transition-all relative ${selected
+                      ? "bg-primary text-white shadow-md font-bold"
+                      : ""
+                      } ${past
                         ? "text-gray-300 cursor-not-allowed bg-gray-50/50"
                         : "hover:bg-gray-100 text-gray-600"
-                    } ${
-                      todayMark && !selected
+                      } ${todayMark && !selected
                         ? "text-primary font-bold bg-orange-50"
                         : ""
-                    }`}>
+                      }`}>
                     {day}
                     {todayMark && (
                       <span
-                        className={`absolute bottom-1.5 w-1 h-1 rounded-full ${
-                          selected ? "bg-white" : "bg-primary"
-                        }`}></span>
+                        className={`absolute bottom-1.5 w-1 h-1 rounded-full ${selected ? "bg-white" : "bg-primary"
+                          }`}></span>
                     )}
                   </button>
                 );
@@ -796,11 +1017,10 @@ const Services = () => {
                   onClick={() =>
                     setFormData((prev) => ({ ...prev, selectedTime: time }))
                   }
-                  className={`p-3 rounded-xl border-2 text-xs font-medium transition-all duration-200 hover:shadow-md hover:border-primary ${
-                    formData.selectedTime === time
-                      ? "bg-primary text-white border-primary"
-                      : "bg-white border-gray-100 text-gray-600"
-                  }`}>
+                  className={`p-3 rounded-xl border-2 text-xs font-medium transition-all duration-200 hover:shadow-md hover:border-primary ${formData.selectedTime === time
+                    ? "bg-primary text-white border-primary"
+                    : "bg-white border-gray-100 text-gray-600"
+                    }`}>
                   {time}
                 </button>
               ))}
@@ -976,11 +1196,10 @@ const Services = () => {
                 key={env}
                 onClick={() => updateComm("environment", env)}
                 className={`p-3 text-xs font-medium rounded-xl border-2 transition-all duration-200 text-center hover:border-primary hover:shadow-md truncate
-                              ${
-                                formData.commercial.environment === env
-                                  ? "bg-primary text-white border-primary shadow-md"
-                                  : "bg-white border-gray-100 text-gray-600"
-                              }
+                              ${formData.commercial.environment === env
+                    ? "bg-primary text-white border-primary shadow-md"
+                    : "bg-white border-gray-100 text-gray-600"
+                  }
                             `}>
                 {env}
               </button>
@@ -997,11 +1216,10 @@ const Services = () => {
                 key={type}
                 onClick={() => updateComm("cleanType", type)}
                 className={`p-4 text-sm font-medium rounded-xl border-2 transition-all duration-200 text-left px-5 hover:border-primary hover:shadow-md
-                              ${
-                                formData.commercial.cleanType === type
-                                  ? "bg-primary text-white border-primary shadow-md"
-                                  : "bg-white border-gray-100 text-gray-600"
-                              }
+                              ${formData.commercial.cleanType === type
+                    ? "bg-primary text-white border-primary shadow-md"
+                    : "bg-white border-gray-100 text-gray-600"
+                  }
                             `}>
                 {type}
               </button>
@@ -1031,11 +1249,10 @@ const Services = () => {
                 key={freq}
                 onClick={() => updateComm("frequency", freq)}
                 className={`py-3 rounded-xl border-2 font-medium text-xs sm:text-sm transition-all hover:border-primary
-                              ${
-                                formData.commercial.frequency === freq
-                                  ? "bg-primary text-white border-primary shadow-md"
-                                  : "bg-white border-gray-100 text-gray-600"
-                              }
+                              ${formData.commercial.frequency === freq
+                    ? "bg-primary text-white border-primary shadow-md"
+                    : "bg-white border-gray-100 text-gray-600"
+                  }
                             `}>
                 {freq}
               </button>
@@ -1053,11 +1270,10 @@ const Services = () => {
                 key={day}
                 onClick={() => toggleDay(day)}
                 className={`w-12 h-12 rounded-full border-2 text-sm font-bold transition-all hover:border-primary
-                              ${
-                                formData.commercial.days.includes(day)
-                                  ? "bg-primary text-white border-primary shadow-md"
-                                  : "bg-white border-gray-100 text-gray-600"
-                              }
+                              ${formData.commercial.days.includes(day)
+                    ? "bg-primary text-white border-primary shadow-md"
+                    : "bg-white border-gray-100 text-gray-600"
+                  }
                             `}>
                 {day}
               </button>
@@ -1082,11 +1298,10 @@ const Services = () => {
         <div className="bg-white p-6 rounded-2xl border-2 border-gray-100">
           <label className="flex items-start gap-4 cursor-pointer group">
             <div
-              className={`mt-1 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${
-                formData.commercial.insuranceRequired
-                  ? "bg-primary border-primary"
-                  : "border-gray-300 bg-gray-50"
-              }`}>
+              className={`mt-1 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${formData.commercial.insuranceRequired
+                ? "bg-primary border-primary"
+                : "border-gray-300 bg-gray-50"
+                }`}>
               <input
                 type="checkbox"
                 className="hidden"
@@ -1121,11 +1336,10 @@ const Services = () => {
                 key={bg}
                 onClick={() => updateComm("budget", bg)}
                 className={`py-3 px-2 rounded-xl border-2 font-medium text-xs sm:text-sm transition-all hover:border-primary truncate
-                              ${
-                                formData.commercial.budget === bg
-                                  ? "bg-primary text-white border-primary shadow-md"
-                                  : "bg-white border-gray-100 text-gray-600"
-                              }
+                              ${formData.commercial.budget === bg
+                    ? "bg-primary text-white border-primary shadow-md"
+                    : "bg-white border-gray-100 text-gray-600"
+                  }
                             `}>
                 {bg}
               </button>
@@ -1197,6 +1411,30 @@ const Services = () => {
             onChange={(e) => updateContact("address", e.target.value)}
           />
         </div>
+        <div className="space-y-1">
+          <label className="text-xs font-bold uppercase text-gray-500">
+            Password <span className="text-red-500">*</span>
+          </label>
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Create a password (min 8 characters)"
+              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-primary transition-all pr-10"
+              value={formData.contact.password}
+              onChange={(e) => updateContact("password", e.target.value)}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              {showPassword ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
+            </button>
+          </div>
+        </div>
 
         <div className="pt-2">
           <label className="flex items-center gap-2 cursor-pointer">
@@ -1215,8 +1453,23 @@ const Services = () => {
           </label>
         </div>
 
-        <button className="w-full mt-4 bg-primary text-white py-4 rounded-xl font-bold shadow-lg shadow-primary/25 hover:shadow-xl transition-all">
-          Request Quote
+        {submitError && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+            {submitError}
+          </div>
+        )}
+        <button
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+          className="w-full mt-4 bg-primary text-white py-4 rounded-xl font-bold shadow-lg shadow-primary/25 hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+          {isSubmitting ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Processing...
+            </>
+          ) : (
+            "Request Quote"
+          )}
         </button>
       </div>
     </div>
@@ -1329,8 +1582,25 @@ const Services = () => {
               </a>
             </label>
           </div>
-          <button className="w-full mt-4 bg-primary text-white py-4 rounded-xl font-bold shadow-lg shadow-primary/25 hover:shadow-xl transition-all flex items-center justify-center gap-2">
-            Book Now & Pay <CreditCard className="w-4 h-4" />
+          {submitError && (
+            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+              {submitError}
+            </div>
+          )}
+          <button
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="w-full mt-4 bg-primary text-white py-4 rounded-xl font-bold shadow-lg shadow-primary/25 hover:shadow-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              <>
+                Book Now & Pay <CreditCard className="w-4 h-4" />
+              </>
+            )}
           </button>
           <p className="text-center text-xs text-gray-500 mt-4">
             Already have an account?{" "}
@@ -1479,11 +1749,10 @@ const Services = () => {
               <button
                 onClick={() => setCurrentStep(totalSteps)}
                 disabled={!validStep}
-                className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-colors flex items-center gap-2 ${
-                  validStep
-                    ? "bg-white text-gray-900 hover:bg-gray-100"
-                    : "bg-gray-700 text-gray-400 cursor-not-allowed"
-                }`}>
+                className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-colors flex items-center gap-2 ${validStep
+                  ? "bg-white text-gray-900 hover:bg-gray-100"
+                  : "bg-gray-700 text-gray-400 cursor-not-allowed"
+                  }`}>
                 Book Now <ChevronRight className="w-4 h-4" />
               </button>
             </div>
@@ -1493,11 +1762,10 @@ const Services = () => {
 
       <div className="container mx-auto px-4 md:px-6 relative z-10 h-full py-4 md:py-8 flex items-center justify-center gap-8">
         <div
-          className={`bg-white rounded-[2.5rem] border border-gray-100 relative overflow-hidden w-full h-auto max-h-[90vh] flex flex-col transition-all duration-500 shadow-2xl ${
-            !isCommercial && currentStep >= 2 && currentStep < totalSteps
-              ? "max-w-4xl"
-              : "max-w-6xl"
-          }`}>
+          className={`bg-white rounded-[2.5rem] border border-gray-100 relative overflow-hidden w-full h-auto max-h-[90vh] flex flex-col transition-all duration-500 shadow-2xl ${!isCommercial && currentStep >= 2 && currentStep < totalSteps
+            ? "max-w-4xl"
+            : "max-w-6xl"
+            }`}>
           {/* Header */}
           <div className="flex-none px-8 pt-8 pb-2 text-center relative">
             {currentStep > 1 && (
@@ -1511,15 +1779,13 @@ const Services = () => {
               <button
                 onClick={handleNext}
                 disabled={!validStep}
-                className={`absolute right-8 top-8 w-10 h-10 rounded-full flex items-center justify-center shadow-md transition-all z-20 group ${
-                  !validStep
-                    ? "bg-gray-100 cursor-not-allowed opacity-50"
-                    : "bg-black hover:bg-gray-800 hover:scale-110 cursor-pointer"
-                }`}>
+                className={`absolute right-8 top-8 w-10 h-10 rounded-full flex items-center justify-center shadow-md transition-all z-20 group ${!validStep
+                  ? "bg-gray-100 cursor-not-allowed opacity-50"
+                  : "bg-black hover:bg-gray-800 hover:scale-110 cursor-pointer"
+                  }`}>
                 <ChevronRight
-                  className={`w-5 h-5 ${
-                    !validStep ? "text-gray-400" : "text-white"
-                  }`}
+                  className={`w-5 h-5 ${!validStep ? "text-gray-400" : "text-white"
+                    }`}
                 />
               </button>
             )}
@@ -1540,11 +1806,10 @@ const Services = () => {
             {Array.from({ length: totalSteps }).map((_, index) => (
               <div
                 key={index}
-                className={`h-1.5 rounded-full transition-all duration-500 ease-out ${
-                  index + 1 === currentStep
-                    ? "w-8 bg-black"
-                    : "w-1.5 bg-gray-200"
-                }`}
+                className={`h-1.5 rounded-full transition-all duration-500 ease-out ${index + 1 === currentStep
+                  ? "w-8 bg-black"
+                  : "w-1.5 bg-gray-200"
+                  }`}
               />
             ))}
           </div>
@@ -1568,9 +1833,8 @@ const Services = () => {
 
 const RoomCounter = ({ label, count, onUpdate, hasInfo = false }: any) => (
   <div
-    className={`flex items-center justify-between bg-gray-50 p-3 rounded-2xl border-2 border-transparent hover:border-gray-100 hover:shadow-md transition-all ${
-      hasInfo ? "group" : ""
-    }`}>
+    className={`flex items-center justify-between bg-gray-50 p-3 rounded-2xl border-2 border-transparent hover:border-gray-100 hover:shadow-md transition-all ${hasInfo ? "group" : ""
+      }`}>
     <div className="flex items-center gap-1.5">
       <span className="capitalize font-medium text-gray-700 text-sm">
         {label}
