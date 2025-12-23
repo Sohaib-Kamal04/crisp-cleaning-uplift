@@ -160,6 +160,12 @@ const BookingSummaryCard = ({
         <span className="block mb-2 text-xs uppercase tracking-wider text-gray-500">
           Breakdown
         </span>
+        {pricingResult?.breakdown.cleaningType && (
+          <div className="flex justify-between mb-1">
+            <span>{pricingResult.breakdown.cleaningType.name} Clean</span>
+            <span>${pricingResult.breakdown.cleaningType.price}</span>
+          </div>
+        )}
         {(formData.homeDetails.bedrooms || 0) > 0 && (
           <div className="flex justify-between mb-1">
             <span>{formData.homeDetails.bedrooms}x Bedroom</span>
@@ -247,7 +253,7 @@ const Services = () => {
     cleaningType: "Regular" as CleaningType,
     homeDetails: { bedrooms: 0, bathrooms: 0, kitchens: 0, other: 0 },
     extras: [] as Extra[],
-    frequency: "" as Frequency,
+    frequency: "One time" as Frequency,
     selectedDays: [] as string[],
     selectedDate: undefined as Date | undefined,
     selectedTime: "",
