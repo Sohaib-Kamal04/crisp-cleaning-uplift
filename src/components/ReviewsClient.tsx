@@ -37,10 +37,6 @@ const getGridSpans = (index: number) => {
       return "md:col-span-4 md:row-span-1";
 
     case 5:
-
-    case 9:
-      return "md:col-span-4 md:row-span-2";
-
     case 2:
       return "md:col-span-4 md:row-span-2";
 
