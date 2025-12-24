@@ -39,10 +39,18 @@ export default defineType({
     }),
     defineField({
       name: "featured",
-      title: "Featured Review?",
+      title: "Featured on Homepage?",
+      type: "boolean",
+      initialValue: false,
+      description: "Toggle this ON to show it on the main homepage carousel.",
+    }),
+    defineField({
+      name: "showInHero",
+      title: "Show in Reviews Page Hero?",
       type: "boolean",
       initialValue: true,
-      description: "Toggle this ON to show it on the homepage carousel.",
+      description:
+        "Toggle this ON to include this review in the scrolling marquee at the top of the reviews page.",
     }),
   ],
 });
