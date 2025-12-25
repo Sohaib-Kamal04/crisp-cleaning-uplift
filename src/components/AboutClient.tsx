@@ -125,7 +125,7 @@ const AboutClient = () => {
       y: ["0em", `${custom.finalY}em`],
       transition: {
         delay: custom.delay,
-        duration: 1.5,
+        duration: 2,
         ease: [0.25, 1, 0.5, 1],
         times: [0, 0.85, 1],
       },
