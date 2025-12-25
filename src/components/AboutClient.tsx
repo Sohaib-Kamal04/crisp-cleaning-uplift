@@ -1,16 +1,17 @@
 "use client";
 
-import React from "react";
+import React, { useRef } from "react"; // Added useRef
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ParallaxBubbles from "@/components/ParallaxBubbles";
-import { motion, useAnimationControls } from "framer-motion";
+import { motion, useAnimationControls, useInView } from "framer-motion"; // Added useInView
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { MissionStorySection } from "@/components/MissionStorySection";
 import { BeforeAfterSection } from "@/components/BeforeAfterSection";
 
+// --- ROLLING NUMBER LOGIC (Unchanged) ---
 const getNumberStrip = (
   target: number,
   start: number,
@@ -67,11 +68,13 @@ const RollingDigit = ({
         initial={{ y: 0 }}
         animate={controls}
         custom={{ finalY, delay }}
-        className={`absolute left-0 w-full ${direction === "up" ? "top-0" : "bottom-0"}`}>
+        className={`absolute left-0 w-full ${direction === "up" ? "top-0" : "bottom-0"}`}
+      >
         {strip.map((n, i) => (
           <div
             key={i}
-            className="h-[1em] flex items-center justify-center leading-none">
+            className="h-[1em] flex items-center justify-center leading-none"
+          >
             {n}
           </div>
         ))}
@@ -118,30 +121,40 @@ const AboutClient = () => {
     { number: "100+", label: "Projects done" },
   ];
 
+  const statsRef = useRef(null);
+
+  const isStatsInView = useInView(statsRef, { once: true, amount: 0.5 });
+
   const controls = useAnimationControls();
 
   React.useEffect(() => {
-    controls.start((custom) => ({
-      y: ["0em", `${custom.finalY}em`],
-      transition: {
-        delay: custom.delay,
-        duration: 2,
-        ease: [0.25, 1, 0.5, 1],
-        times: [0, 0.85, 1],
-      },
-    }));
-  }, [controls]);
+    if (isStatsInView) {
+      controls.start((custom) => ({
+        y: ["0em", `${custom.finalY}em`],
+        transition: {
+          delay: custom.delay,
+          duration: 1.5,
+          ease: [0.25, 1, 0.5, 1],
+          times: [0, 0.85, 1],
+        },
+      }));
+    }
+  }, [controls, isStatsInView]);
 
   return (
     <>
       <div className="min-h-screen bg-background flex flex-col overflow-x-hidden">
+        {/* --- NEW HERO SECTION (Gradient Background) --- */}
         <section className="relative min-h-[60vh] overflow-hidden">
+          {/* Gradient Background */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-accent z-0" />
 
+          {/* Decorative Blurs */}
           <div className="absolute top-20 right-20 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
           <div className="absolute bottom-0 left-10 w-72 h-72 bg-white/5 rounded-full blur-2xl" />
           <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-accent/20 rounded-full blur-2xl" />
 
+          {/* Navbar inside Hero for transparent look */}
           <Navbar />
 
           <div className="relative z-10 container mx-auto px-6 pt-40 pb-20 text-center">
@@ -150,32 +163,37 @@ const AboutClient = () => {
             </span>
             <h1
               className="text-4xl md:text-6xl lg:text-7xl font-display font-bold leading-tight mb-6 text-white drop-shadow-md animate-fade-up"
-              style={{ animationDelay: "100ms" }}>
+              style={{ animationDelay: "100ms" }}
+            >
               About Crisp Cleaning
             </h1>
             <p
               className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto animate-fade-up font-medium"
-              style={{ animationDelay: "200ms" }}>
+              style={{ animationDelay: "200ms" }}
+            >
               Learn more about our journey, our values, and the team dedicated
               to making your space shine.
             </p>
           </div>
         </section>
 
-        {/* --- ROLLING STATS SECTION --- */}
+        {/* --- ROLLING STATS SECTION (Moved Down) --- */}
         <section className="relative py-24 overflow-hidden bg-background">
           <ParallaxBubbles />
 
+          {/* Decorative Blobs */}
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#FF8C42]/10 rounded-full blur-3xl -z-10" />
           <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl -z-10" />
 
           <div className="container mx-auto px-6">
             <motion.div
+              ref={statsRef} 
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.5 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
-              className="flex flex-col lg:grid lg:grid-cols-2 gap-16 items-center">
+              className="flex flex-col lg:grid lg:grid-cols-2 gap-16 items-center"
+            >
               {/* LEFT: Headline */}
               <div className="max-w-xl relative z-30">
                 <span className="inline-block px-6 py-2 bg-[#FF8C42] text-white text-sm font-semibold rounded-full mb-6 shadow-md">
@@ -204,10 +222,13 @@ const AboutClient = () => {
           </div>
         </section>
 
+        {/* --- MISSION / STORY SECTION --- */}
         <MissionStorySection />
 
+        {/* --- BEFORE/AFTER SECTION --- */}
         <BeforeAfterSection />
 
+        {/* --- CTA SECTION --- */}
         <section className="py-20 bg-background">
           <div className="container mx-auto px-6">
             <motion.div
@@ -215,7 +236,8 @@ const AboutClient = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.6, ease: "easeOut" }}
-              className="relative rounded-3xl bg-gradient-to-br from-primary via-primary/90 to-accent p-12 md:p-20 overflow-hidden shadow-2xl text-center">
+              className="relative rounded-3xl bg-gradient-to-br from-primary via-primary/90 to-accent p-12 md:p-20 overflow-hidden shadow-2xl text-center"
+            >
               <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none" />
               <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none" />
 
@@ -232,7 +254,8 @@ const AboutClient = () => {
                     <Button
                       size="lg"
                       variant="secondary"
-                      className="w-full sm:w-auto h-14 px-8 text-lg rounded-xl shadow-xl">
+                      className="w-full sm:w-auto h-14 px-8 text-lg rounded-xl shadow-xl"
+                    >
                       Get a Quote <ArrowRight className="ml-2 w-5 h-5" />
                     </Button>
                   </Link>
@@ -240,7 +263,8 @@ const AboutClient = () => {
                     <Button
                       size="lg"
                       variant="secondary"
-                      className="w-full sm:w-auto h-14 px-8 text-lg rounded-xl shadow-xl">
+                      className="w-full sm:w-auto h-14 px-8 text-lg rounded-xl shadow-xl"
+                    >
                       Contact Us
                     </Button>
                   </Link>
