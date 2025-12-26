@@ -61,11 +61,10 @@ const Navbar = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ease-linear ${
-        showScrolledStyle
-          ? "bg-card/90 backdrop-blur-lg shadow-sm py-3"
-          : "bg-transparent py-6"
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ease-linear ${showScrolledStyle
+        ? "bg-card/90 backdrop-blur-lg shadow-sm py-3"
+        : "bg-transparent py-6"
+        }`}
       style={{
         borderBottomLeftRadius: !isHomePage ? "0px" : `${radius}px`,
         borderBottomRightRadius: !isHomePage ? "0px" : `${radius}px`,
@@ -93,9 +92,8 @@ const Navbar = () => {
                 key={link.name}
                 href={link.href}
                 onClick={() => handleNavClick(link.href)}
-                className={`text-sm font-medium transition-colors duration-300 ${hoverColorClass} ${
-                  isActive ? "text-primary" : textColorClass
-                }`}>
+                className={`text-sm font-medium transition-colors duration-300 ${hoverColorClass} ${isActive ? "text-primary" : textColorClass
+                  }`}>
                 {link.name}
               </Link>
             );
@@ -112,7 +110,7 @@ const Navbar = () => {
                 ? ""
                 : "text-white hover:bg-white/20 hover:text-white"
             }>
-            Login
+            <Link href={(process.env.NEXT_PUBLIC_API_BASE_URL || 'https://crispcleaning.devlopd.com')}>Login</Link>
           </Button>
           <Button variant="hero" size="default" className="mr-20">
             Get Started Now
@@ -121,9 +119,8 @@ const Navbar = () => {
 
         {/* Mobile Menu Button */}
         <button
-          className={`md:hidden p-2 transition-colors ${
-            showScrolledStyle ? "text-foreground" : "text-white"
-          }`}
+          className={`md:hidden p-2 transition-colors ${showScrolledStyle ? "text-foreground" : "text-white"
+            }`}
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -143,7 +140,9 @@ const Navbar = () => {
               </Link>
             ))}
             <div className="flex flex-col gap-3 pt-4 border-t border-border">
-              <Button variant="ghost">Login</Button>
+              <Button variant="ghost" asChild>
+                <Link href={(process.env.NEXT_PUBLIC_API_BASE_URL || 'https://crispcleaning.devlopd.com')}>Login</Link>
+              </Button>
               <Button variant="hero">Get Started Now</Button>
             </div>
           </nav>

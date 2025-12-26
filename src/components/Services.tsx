@@ -360,8 +360,6 @@ const Services = () => {
           return (
             !!formData.contact.firstName &&
             !!formData.contact.email &&
-            !!formData.contact.password &&
-            formData.contact.password.length >= 8 &&
             !!formData.contact.phone &&
             !!formData.contact.address &&
             formData.contact.terms
@@ -539,7 +537,7 @@ const Services = () => {
       firstName: formData.contact.firstName,
       lastName: "",
       email: formData.contact.email,
-      password: formData.contact.password,
+      // No password field for commercial bookings
       phone: formData.contact.phone,
       address: formData.contact.address,
       accountType: "commercial" as const,
@@ -588,11 +586,13 @@ const Services = () => {
         return;
       }
 
-      // Password is required for both types
-      if (!formData.contact.password || formData.contact.password.length < 8) {
-        setSubmitError("Password is required and must be at least 8 characters.");
-        setIsSubmitting(false);
-        return;
+      // Password is required only for residential bookings
+      if (!isCommercial) {
+        if (!formData.contact.password || formData.contact.password.length < 8) {
+          setSubmitError("Password is required and must be at least 8 characters.");
+          setIsSubmitting(false);
+          return;
+        }
       }
 
       // Transform form data based on booking type
@@ -1416,30 +1416,6 @@ const Services = () => {
             value={formData.contact.address}
             onChange={(e) => updateContact("address", e.target.value)}
           />
-        </div>
-        <div className="space-y-1">
-          <label className="text-xs font-bold uppercase text-gray-500">
-            Password <span className="text-red-500">*</span>
-          </label>
-          <div className="relative">
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Create a password (min 8 characters)"
-              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-primary transition-all pr-10"
-              value={formData.contact.password}
-              onChange={(e) => updateContact("password", e.target.value)}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-              {showPassword ? (
-                <EyeOff className="w-4 h-4" />
-              ) : (
-                <Eye className="w-4 h-4" />
-              )}
-            </button>
-          </div>
         </div>
 
         <div className="pt-2">
