@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Facebook, Instagram, Twitter, ChevronUp } from "lucide-react";
 
@@ -51,7 +51,10 @@ const SocialIcons = () => (
       initial: { opacity: 0, height: 0 },
       hover: { opacity: 1, height: "auto" },
     }}
-    transition={{ duration: 0.3, ease: "easeInOut" }}>
+    transition={{ duration: 0.3, ease: "easeInOut" }}
+    // Prevent clicking icons from toggling the card closed
+    onClick={(e) => e.stopPropagation()}
+  >
     <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
       <Facebook size={18} />
     </a>
@@ -65,19 +68,32 @@ const SocialIcons = () => (
 );
 
 const TeamCard = ({ member }: { member: TeamMember }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
     <motion.div
       className="relative w-full max-w-sm mx-auto flex flex-col items-center group cursor-pointer"
       initial="initial"
-      whileHover="hover"
-      animate="initial">
+      // We control the animation state manually to support both hover and click
+      animate={isHovered ? "hover" : "initial"}
+      // Desktop Hover Events
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      // Mobile/Tablet Tap Event (Toggle)
+      onClick={() => setIsHovered(!isHovered)}
+      // Accessibility
+      onFocus={() => setIsHovered(true)}
+      onBlur={() => setIsHovered(false)}
+      tabIndex={0} // Make focusable
+    >
       <motion.div
         className="relative z-10 w-full aspect-[3/4] overflow-hidden rounded-t-2xl"
         variants={{
           initial: { scale: 1, y: 0 },
           hover: { scale: 1.05, y: -10 },
         }}
-        transition={{ duration: 0.4, ease: "easeOut" }}>
+        transition={{ duration: 0.4, ease: "easeOut" }}
+      >
         <img
           src={member.image}
           alt={member.name}
@@ -94,14 +110,16 @@ const TeamCard = ({ member }: { member: TeamMember }) => {
         transition={{
           duration: 0.3,
           ease: "easeInOut",
-        }}>
+        }}
+      >
         <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm z-30">
           <motion.div
             variants={{
               initial: { rotate: 0 },
               hover: { rotate: 180 },
             }}
-            transition={{ duration: 0.3, ease: "backOut" }}>
+            transition={{ duration: 0.3, ease: "backOut" }}
+          >
             <ChevronUp size={20} className="text-gray-800" />
           </motion.div>
         </div>
@@ -113,7 +131,8 @@ const TeamCard = ({ member }: { member: TeamMember }) => {
             variants={{
               initial: { color: "#111827" },
               hover: { color: "#FA8C42" },
-            }}>
+            }}
+          >
             {member.name}
           </motion.h3>
 
