@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect } from "react";
-import { motion, useAnimationControls } from "framer-motion";
+import React, { useEffect, useRef } from "react";
+import { motion, useAnimationControls, useInView } from "framer-motion";
 import ParallaxBubbles from "@/components/ParallaxBubbles";
 
 const getNumberStrip = (
@@ -46,11 +46,13 @@ const RollingDigit = ({ char, index, delay, controls }: any) => {
         initial={{ y: 0 }}
         animate={controls}
         custom={{ finalY, delay }}
-        className={`absolute left-0 w-full ${direction === "up" ? "top-0" : "bottom-0"}`}>
+        className={`absolute left-0 w-full ${direction === "up" ? "top-0" : "bottom-0"}`}
+      >
         {strip.map((n, i) => (
           <div
             key={i}
-            className="h-[1em] flex items-center justify-center leading-none">
+            className="h-[1em] flex items-center justify-center leading-none"
+          >
             {n}
           </div>
         ))}
@@ -88,18 +90,28 @@ export const StatsSection = () => {
   ];
 
   const controls = useAnimationControls();
+  
+  const sectionRef = useRef(null);
+
+  const isInView = useInView(sectionRef, { once: true, amount: 0.5 });
 
   useEffect(() => {
-    controls.start((custom) => ({
-      y: ["0em", `${custom.finalY}em`],
-      transition: {
-        delay: custom.delay,
-        duration: 1.5,
-        ease: [0.25, 1, 0.5, 1],
-        times: [0, 0.85, 1],
-      },
-    }));
-  }, [controls]);
+    if (isInView) {
+      const timer = setTimeout(() => {
+        controls.start((custom) => ({
+          y: ["0em", `${custom.finalY}em`],
+          transition: {
+            delay: custom.delay, 
+            duration: 1.5,
+            ease: [0.25, 1, 0.5, 1],
+            times: [0, 0.85, 1],
+          },
+        }));
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [controls, isInView]);
 
   return (
     <section className="relative py-24 overflow-hidden bg-background">
@@ -113,7 +125,8 @@ export const StatsSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.5 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="flex flex-col lg:grid lg:grid-cols-2 gap-16 items-center">
+          className="flex flex-col lg:grid lg:grid-cols-2 gap-16 items-center"
+        >
           <div className="max-w-xl relative z-30">
             <span className="inline-block px-6 py-2 bg-[#FF8C42] text-white text-sm font-semibold rounded-full mb-6 shadow-md">
               Our Journey
@@ -124,7 +137,10 @@ export const StatsSection = () => {
             </h2>
           </div>
 
-          <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6 relative z-20">
+          <div 
+            ref={sectionRef} 
+            className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6 relative z-20"
+          >
             {stats.map((stat, i) => (
               <StatCard
                 key={i}
