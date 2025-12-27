@@ -79,14 +79,6 @@ export const ReviewGridCard = React.memo(
             />
 
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-            <div className="absolute bottom-0 left-0 p-6 w-full text-white">
-              <Quote className="w-8 h-8 text-white/80 mb-4 rotate-180" />
-              <h3 className="text-2xl font-bold mb-2">{review.name}</h3>
-              <p className="text-white/90 line-clamp-3 italic">
-                "{review.content}"
-              </p>
-            </div>
           </Card>
         </div>
       );
