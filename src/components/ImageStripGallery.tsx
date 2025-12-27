@@ -50,7 +50,7 @@ const items = [
 
 export const ImageStripGallery = () => {
   return (
-    <section className="py-24 relative overflow-hidden">
+    <section className="py-12 relative overflow-hidden">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[500px] bg-secondary/5 rounded-full pointer-events-none -z-10 blur-3xl" />
 
       <div className="container mx-auto px-6">
