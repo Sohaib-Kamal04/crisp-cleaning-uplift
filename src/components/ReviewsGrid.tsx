@@ -1,153 +1,162 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ArrowRight, Search } from "lucide-react";
-import useScrollScale from "@/hooks/useScrollScale";
-import { ReviewItem, ReviewGridCard } from "@/components/ReviewsCards";
+import React from "react";
+import { Quote, Star } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
-interface ReviewsGridProps {
-  data: ReviewItem[];
+export interface ReviewItem {
+  _id: string;
+  name: string;
+  role: string;
+  content: string;
+  rating: number;
+  avatarInitials?: string;
+  featured?: boolean;
+  showInHero?: boolean;
+  _createdAt: string;
+  imageUrl?: string;
 }
 
-const getGridSpans = (index: number) => {
-  const mod = index % 10;
-  switch (mod) {
-    case 0:
-      return "md:col-span-4 md:row-span-1";
-    case 5:
-    case 2:
-      return "md:col-span-4 md:row-span-2";
-    default:
-      return "md:col-span-4 md:row-span-1";
-  }
-};
-
-export const ReviewsGrid = ({ data }: ReviewsGridProps) => {
-  const { ref: reviewsContentRef, style: reviewsContentStyle } = useScrollScale(
-    {
-      threshold: 0.05,
-      scaleAmount: 1.02,
-    }
-  );
-
-  const [searchTerm, setSearchTerm] = useState("");
-  const [visibleCount, setVisibleCount] = useState(10);
-  const ITEMS_PER_PAGE = 10;
-
-  const filteredData = useMemo(() => {
-    if (!searchTerm) return data;
-    const lowerTerm = searchTerm.toLowerCase();
-    return data.filter(
-      (item) =>
-        item.name.toLowerCase().includes(lowerTerm) ||
-        item.content.toLowerCase().includes(lowerTerm) ||
-        (item.role && item.role.toLowerCase().includes(lowerTerm))
-    );
-  }, [data, searchTerm]);
-
-  const visibleData = filteredData.slice(0, visibleCount);
-  const hasMore = visibleCount < filteredData.length;
-
-  const handleLoadMore = () => {
-    setVisibleCount((prev) => prev + ITEMS_PER_PAGE);
-  };
-
-  return (
-    <section className="relative py-24 min-h-[800px] overflow-hidden">
-      <div className="absolute bottom-1/4 left-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl -z-10" />
-
-      <div
-        ref={reviewsContentRef as React.RefObject<HTMLDivElement>}
-        style={reviewsContentStyle}
-        className="container mx-auto px-0 md:px-6">
-        <div className="px-6 md:px-0 flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-          <div className="max-w-xl">
-            <h2 className="text-3xl md:text-5xl font-display font-bold mb-4">
-              All Client Stories
-            </h2>
-            <p className="text-muted-foreground text-lg">
-              Learn how Crisp Cleaning customers save time, effort and money
-            </p>
-          </div>
-
-          <div className="relative w-full md:w-80 group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-accent rounded-lg blur opacity-20 group-hover:opacity-40 transition duration-200"></div>
-            <div className="relative bg-background/80 rounded-lg flex items-center px-3 border border-border/50 shadow-sm focus-within:border-primary/50 transition-colors">
-              <Search className="w-5 h-5 text-muted-foreground mr-2" />
-              <Input
-                placeholder="Search reviews..."
-                className="border-none shadow-none focus-visible:ring-0 px-0 h-12 bg-transparent placeholder:text-muted-foreground/50"
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setVisibleCount(10);
-                }}
-              />
-            </div>
-          </div>
+export const MarqueeReviewCard = React.memo(
+  ({ review, className }: { review: ReviewItem; className?: string }) => (
+    <div
+      className={cn(
+        "bg-white/80 rounded-2xl p-6 shadow-sm border border-gray-100/50 flex-shrink-0 whitespace-normal",
+        className
+      )}
+    >
+      <div className="flex items-start gap-4 mb-4">
+        <Avatar className="h-10 w-10 ring-2 ring-white">
+          <AvatarImage
+            src={`https://api.dicebear.com/7.x/initials/svg?seed=${review.name}`}
+          />
+          <AvatarFallback className="bg-primary/10 text-primary">
+            {review.avatarInitials || review.name.charAt(0)}
+          </AvatarFallback>
+        </Avatar>
+        <div>
+          <h4 className="font-bold text-sm text-gray-900">{review.name}</h4>
+          <span className="text-xs text-gray-400">{review.role}</span>
         </div>
+      </div>
+      <p className="text-gray-600 text-sm leading-relaxed line-clamp-4">
+        "{review.content}"
+      </p>
+    </div>
+  )
+);
 
-        {visibleData.length > 0 ? (
-          <>
-            <div
-              className="
-                flex flex-row gap-4 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-8 px-6
-                md:grid md:grid-cols-12 md:gap-6 md:overflow-visible md:pb-0 md:px-0 md:grid-flow-dense
-              ">
-              {visibleData.map((review, index) => {
-                const gridClasses = getGridSpans(index);
-                return (
-                  <ReviewGridCard
-                    key={`${review._id}-${index}`}
-                    review={review}
-                    index={index}
-                    gridClasses={gridClasses}
-                  />
-                );
-              })}
-            </div>
+export const ReviewGridCard = React.memo(
+  ({
+    review,
+    index,
+    gridClasses,
+  }: {
+    review: ReviewItem;
+    index: number;
+    gridClasses: string;
+  }) => {
+    const isBigCard = gridClasses.includes("row-span-2");
 
-            {hasMore && (
-              <div className="mt-8 md:mt-16 text-center px-6 md:px-0 hidden md:block">
-                <div className="relative inline-block group">
-                  <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-full blur opacity-25 group-hover:opacity-50 transition duration-200" />
-                  <Button
-                    onClick={handleLoadMore}
-                    size="lg"
-                    className="relative bg-background hover:bg-background/90 text-foreground border border-input rounded-full px-8 h-12 font-medium">
-                    Load More Stories
-                    <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </div>
-                <p className="text-sm text-muted-foreground mt-4">
-                  Showing {visibleData.length} of {filteredData.length} reviews
+    if (isBigCard) {
+      return (
+        <div
+          className={cn(
+            "relative flex-shrink-0 w-[300px] md:w-auto snap-start h-full",
+            gridClasses
+          )}
+        >
+          <Card
+            className={cn(
+              "border-none shadow-lg hover:shadow-2xl transition-all duration-500 group relative overflow-hidden h-full min-h-[400px]",
+              "animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-both"
+            )}
+            style={{ animationDelay: `${(index % 9) * 100}ms` }}
+          >
+            <img
+              src={review.imageUrl || "./before.png"}
+              alt="Client Story"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+          </Card>
+        </div>
+      );
+    }
+
+    return (
+      <div
+        className={cn(
+          "relative flex-shrink-0 w-[300px] md:w-auto snap-start",
+          gridClasses
+        )}
+      >
+        <Card
+          className={cn(
+            "border-none shadow-lg hover:shadow-2xl transition-all duration-500 group bg-white/70 relative overflow-hidden h-full flex flex-col justify-between",
+            "animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-both hover:-translate-y-1 hover:bg-white/90"
+          )}
+          style={{ animationDelay: `${(index % 9) * 100}ms` }}
+        >
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-all duration-500 pointer-events-none" />
+
+          <div>
+            <CardHeader className="flex flex-row items-center gap-4 pb-4 relative z-10">
+              <Quote className="absolute top-2 right-2 text-primary/10 w-10 h-10 transition-all duration-500 group-hover:text-primary/20 group-hover:rotate-12" />
+              <Avatar className="border-2 border-white shadow-sm ring-2 ring-transparent group-hover:ring-primary/20 transition-all h-10 w-10">
+                <AvatarImage
+                  src={`https://api.dicebear.com/7.x/initials/svg?seed=${review.name}`}
+                  alt={review.name}
+                />
+                <AvatarFallback>
+                  {review.avatarInitials || review.name.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1 text-base">
+                  {review.name}
+                </h3>
+                <p className="text-xs text-muted-foreground line-clamp-1">
+                  {review.role || "Verified Customer"}
                 </p>
               </div>
-            )}
-          </>
-        ) : (
-          <div className="mx-6 md:mx-0 text-center py-20 bg-gray-50/50 rounded-3xl border border-dashed border-gray-200">
-            <div className="bg-white p-4 rounded-full w-16 h-16 mx-auto flex items-center justify-center shadow-sm mb-4">
-              <Search className="w-8 h-8 text-gray-400" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              No reviews found
-            </h3>
-            <p className="text-muted-foreground max-w-sm mx-auto">
-              We couldn't find any reviews matching "{searchTerm}". Try
-              searching for a different keyword.
-            </p>
-            <Button
-              variant="link"
-              onClick={() => setSearchTerm("")}
-              className="mt-4 text-primary">
-              Clear Search
-            </Button>
+            </CardHeader>
+            <CardContent className="pt-0 relative z-10">
+              <div className="flex gap-1 mb-4">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star
+                    key={i}
+                    className={cn(
+                      "w-4 h-4 transition-all duration-300",
+                      i < (review.rating || 5)
+                        ? "fill-yellow-400 text-yellow-400 group-hover:scale-110"
+                        : "fill-gray-200 text-gray-200"
+                    )}
+                    style={{ transitionDelay: `${i * 50}ms` }}
+                  />
+                ))}
+              </div>
+
+              <p className="text-muted-foreground leading-relaxed italic text-sm line-clamp-4">
+                "{review.content}"
+              </p>
+            </CardContent>
           </div>
-        )}
+
+          <div className="p-6 pt-0 relative z-10 mt-4">
+            <span className="text-xs text-muted-foreground/60 font-medium bg-gray-100/50 px-3 py-1 rounded-full inline-block">
+              {new Date(review._createdAt || Date.now()).toLocaleDateString(
+                "en-US",
+                {
+                  year: "numeric",
+                  month: "short",
+                }
+              )}
+            </span>
+          </div>
+        </Card>
       </div>
-    </section>
-  );
-};
+    );
+  }
+);
