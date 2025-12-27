@@ -110,7 +110,7 @@ export const ReviewsGrid = ({ data }: ReviewsGridProps) => {
             </div>
 
             {hasMore && (
-              <div className="mt-8 md:mt-16 text-center px-6 md:px-0">
+              <div className="mt-8 md:mt-16 text-center px-6 md:px-0 hidden md:block">
                 <div className="relative inline-block group">
                   <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-full blur opacity-25 group-hover:opacity-50 transition duration-200" />
                   <Button
