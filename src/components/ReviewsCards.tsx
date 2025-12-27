@@ -16,6 +16,7 @@ export interface ReviewItem {
   featured?: boolean;
   showInHero?: boolean;
   _createdAt: string;
+  imageUrl?: string;
 }
 
 export const MarqueeReviewCard = React.memo(
@@ -58,6 +59,39 @@ export const ReviewGridCard = React.memo(
   }) => {
     const isBigCard = gridClasses.includes("row-span-2");
 
+    if (isBigCard) {
+      return (
+        <div
+          className={cn(
+            "relative flex-shrink-0 w-[300px] md:w-auto snap-start h-full",
+            gridClasses
+          )}>
+          <Card
+            className={cn(
+              "border-none shadow-lg hover:shadow-2xl transition-all duration-500 group relative overflow-hidden h-full min-h-[400px]",
+              "animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-both"
+            )}
+            style={{ animationDelay: `${(index % 9) * 100}ms` }}>
+            <img
+              src={review.imageUrl || "./before.png"}
+              alt="Client Story"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+            <div className="absolute bottom-0 left-0 p-6 w-full text-white">
+              <Quote className="w-8 h-8 text-white/80 mb-4 rotate-180" />
+              <h3 className="text-2xl font-bold mb-2">{review.name}</h3>
+              <p className="text-white/90 line-clamp-3 italic">
+                "{review.content}"
+              </p>
+            </div>
+          </Card>
+        </div>
+      );
+    }
+
     return (
       <div
         className={cn(
@@ -70,25 +104,12 @@ export const ReviewGridCard = React.memo(
             "animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-both hover:-translate-y-1 hover:bg-white/90"
           )}
           style={{ animationDelay: `${(index % 9) * 100}ms` }}>
-          {isBigCard ? (
-            <div className="absolute -top-20 -left-20 w-64 h-64 bg-accent/10 rounded-full blur-3xl group-hover:bg-accent/20 transition-all duration-500 pointer-events-none" />
-          ) : (
-            <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-all duration-500 pointer-events-none" />
-          )}
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-all duration-500 pointer-events-none" />
 
           <div>
             <CardHeader className="flex flex-row items-center gap-4 pb-4 relative z-10">
-              <Quote
-                className={cn(
-                  "absolute top-2 right-2 text-primary/10 transition-all duration-500 group-hover:text-primary/20 group-hover:rotate-12",
-                  isBigCard ? "w-16 h-16" : "w-10 h-10"
-                )}
-              />
-              <Avatar
-                className={cn(
-                  "border-2 border-white shadow-sm ring-2 ring-transparent group-hover:ring-primary/20 transition-all",
-                  isBigCard ? "h-14 w-14" : "h-10 w-10"
-                )}>
+              <Quote className="absolute top-2 right-2 text-primary/10 w-10 h-10 transition-all duration-500 group-hover:text-primary/20 group-hover:rotate-12" />
+              <Avatar className="border-2 border-white shadow-sm ring-2 ring-transparent group-hover:ring-primary/20 transition-all h-10 w-10">
                 <AvatarImage
                   src={`https://api.dicebear.com/7.x/initials/svg?seed=${review.name}`}
                   alt={review.name}
@@ -98,11 +119,7 @@ export const ReviewGridCard = React.memo(
                 </AvatarFallback>
               </Avatar>
               <div>
-                <h3
-                  className={cn(
-                    "font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1",
-                    isBigCard ? "text-lg" : "text-base"
-                  )}>
+                <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1 text-base">
                   {review.name}
                 </h3>
                 <p className="text-xs text-muted-foreground line-clamp-1">
@@ -126,13 +143,7 @@ export const ReviewGridCard = React.memo(
                 ))}
               </div>
 
-              <p
-                className={cn(
-                  "text-muted-foreground leading-relaxed italic",
-                  isBigCard
-                    ? "text-base line-clamp-[8]"
-                    : "text-sm line-clamp-4"
-                )}>
+              <p className="text-muted-foreground leading-relaxed italic text-sm line-clamp-4">
                 "{review.content}"
               </p>
             </CardContent>
